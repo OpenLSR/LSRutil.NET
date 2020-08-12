@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Numerics;
 using System.Text;
 using static LSRutil.Constants;
 
@@ -122,7 +121,7 @@ namespace LSRutil
                         stream.Seek(2, SeekOrigin.Current);
                         element.rotation = (TrackRotation)reader.ReadByte();
                         stream.Seek(3, SeekOrigin.Current);
-                        element.pos = new Vector3(x, height, z);
+                        element.pos = new GridPosition(x, height, z);
 
                         track.Add(element);
                     }

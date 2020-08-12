@@ -24,7 +24,14 @@ namespace LSRutil
         /// <summary>
         /// The global position of the track element.
         /// </summary>
-        public Vector3 pos;
+        public GridPosition pos;
+
+        /// <summary> X value of element position, provided for ease of use. </summary>
+        public int X { set => this.pos.X = value; get => this.pos.X; }
+        /// <summary> Y value of element position, provided for ease of use. </summary>
+        public int Y { set => this.pos.Y = value; get => this.pos.Y; }
+        /// <summary> Z value of element position, provided for ease of use. </summary>
+        public int Z { set => this.pos.Z = value; get => this.pos.Z; }
 
         /// <summary>
         /// The normalized ID, from 0 to 73.
@@ -38,7 +45,7 @@ namespace LSRutil
         /// <param name="theme">The theme of the track element</param>
         /// <param name="rotation">The rotation of the track element</param>
         /// <param name="pos">The position of the track element</param>
-        public TrackElement(byte id, int theme, int rotation, Vector3 pos)
+        public TrackElement(byte id, int theme, int rotation, GridPosition pos)
         {
             this.id = id;
             this.theme = (TrackTheme)theme;
@@ -48,9 +55,29 @@ namespace LSRutil
         }
 
         /// <summary>
+        /// Instanciates a new track element with given arguments.
+        /// </summary>
+        /// <param name="id">The ID of the track element</param>
+        /// <param name="theme">The theme of the track element</param>
+        /// <param name="rotation">The rotation of the track element</param>
+        /// <param name="pos">The position of the track element</param>
+        [Obsolete("Deprecated, use GridPosition instead of Vector3.")]
+        public TrackElement(byte id, int theme, int rotation, Vector3 pos)
+        {
+            this.id = id;
+            this.theme = (TrackTheme)theme;
+            this.rotation = (TrackRotation)rotation;
+            this.pos = new GridPosition((int)pos.X, (int)pos.Y, (int)pos.Z);
+            this.xid = GetElement(this.theme, this.id);
+        }
+
+        /// <summary>
         /// Instanciates a new track element.
         /// </summary>
-        public TrackElement() { }
+        public TrackElement()
+        {
+            this.pos = new GridPosition();
+        }
 
         /// <summary>
         /// Sets the normalized and non-normalized element ID at the same time.
@@ -63,7 +90,7 @@ namespace LSRutil
         }
 
         /// <summary>
-        /// Prints information about this element to the console.
+        /// Prints information about this element to the console. This should only be used for debugging.
         /// </summary>
         public void GetInfo()
         {

@@ -5,7 +5,7 @@
     <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <RootNamespace>LSRutil</RootNamespace>
-    <Version>0.8.0</Version>
+    <Version>0.8.1</Version>
     <Authors>Zsolt Zitting</Authors>
     <Copyright></Copyright>
     <Company></Company>

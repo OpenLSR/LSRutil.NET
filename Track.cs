@@ -59,7 +59,7 @@ namespace LSRutil
         }
 
         /// <summary>
-        /// Prints information about this track to the console.
+        /// Prints information about this track to the console. This should only be used for debugging.
         /// </summary>
         public void GetInfo()
         {
