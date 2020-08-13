@@ -38,8 +38,7 @@ namespace ReadTrack
             {
                 foreach (var chr in row)
                 {
-                    //char pr = chr != '\0' ? chr : '.';
-                    Console.Write(chr);
+                    Console.Write(chr != '\0' ? chr : '.');
                 }
                 Console.Write("\n");
             }
@@ -63,7 +62,7 @@ namespace ReadTrack
             var track = reader.ReadTrack(filename);
 
             track.GetInfo();
-            //track.GetElements()[0].GetInfo();
+            track.GetElements()[0].GetInfo();
             var elements = track.GetElements();
 
             foreach (var element in elements)

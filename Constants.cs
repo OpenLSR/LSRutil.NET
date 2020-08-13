@@ -33,7 +33,8 @@ namespace LSRutil
         public enum TrackSize
         {
             Multiplayer = 0,
-            Singleplayer = 1
+            Singleplayer = 1,
+            Mega = 2
         }
 
         /// <summary>
@@ -58,22 +59,22 @@ namespace LSRutil
         /// Converts normalized element ID to non-normalized element ID.
         /// </summary>
         /// <param name="theme">The theme of the requested element</param>
-        /// <param name="elementId">The normalized element ID</param>
+        /// <param name="xid">The normalized element ID</param>
         /// <returns>The non-normalized element ID</returns>
-        public static byte GetElement(TrackTheme theme, int elementId)
+        public static byte GetElement(TrackTheme theme, int xid)
         {
-            return elementTable[(int)theme][elementId];
+            return elementTable[(int)theme][xid];
         }
 
         /// <summary>
         /// Converts non-normalized element ID to normalized element ID.
         /// </summary>
         /// <param name="theme">The theme of the requested element</param>
-        /// <param name="elementId">The non-normalized element ID</param>
+        /// <param name="id">The non-normalized element ID</param>
         /// <returns>The normalized element ID</returns>
-        public static int GetElement(TrackTheme theme, byte elementId)
+        public static int GetElement(TrackTheme theme, byte id)
         {
-            return Array.IndexOf(elementTable[(int)theme], elementId);
+            return Array.IndexOf(elementTable[(int)theme], id);
         }
 
         /// <summary>

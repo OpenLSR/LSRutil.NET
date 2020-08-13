@@ -27,6 +27,11 @@ namespace LSRutil
         private List<TrackElement> elements;
 
         /// <summary>
+        /// The track's playablity outside of the editor.
+        /// </summary>
+        public bool playable;
+
+        /// <summary>
         /// Instanciates a new track.
         /// </summary>
         /// <param name="theme">The theme of the track</param>
@@ -49,6 +54,11 @@ namespace LSRutil
             elements.Add(element);
         }
 
+        public void SetElements(List<TrackElement> elements)
+        {
+            this.elements = elements;
+        }
+
         /// <summary>
         /// Returns a list of all of the elements in a track.
         /// </summary>
@@ -56,6 +66,11 @@ namespace LSRutil
         public List<TrackElement> GetElements()
         {
             return elements;
+        }
+
+        public int GetMaxElements()
+        {
+            return (int)Math.Pow((((int)this.size + 1) * 8), 2);
         }
 
         /// <summary>

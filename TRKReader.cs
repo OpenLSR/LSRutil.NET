@@ -11,9 +11,20 @@ namespace LSRutil
         private BinaryReader reader;
 
         /// <summary>
+        /// Enables extended features which are not supported by the official standard.
+        /// </summary>
+        /// <remarks>
+        /// <para>Allows you to use the <see cref="TrackSize.Mega"/> track size.</para>
+        /// </remarks>
+        public readonly bool extensions = false;
+
+        /// <summary>
         /// Instanciates a new TRKReader to read a track file.
         /// </summary>
-        public TRKReader() { }
+        /// <param name="extensions">Enables extended features which are not supported by the official standard.</param>
+        public TRKReader(bool extensions = false) {
+            this.extensions = extensions;
+        }
 
         /// <summary>
         /// Reads a string from the stream.
@@ -53,7 +64,7 @@ namespace LSRutil
         private int ReadHeight()
         {
             int height = (int)ReadFloat();
-            return height == -1 ? 0 : height/8;
+            return height == -1 ? 0 : (extensions ? height/8 : Math.Min(height/8, 3));
         }
 
         /// <summary>
@@ -100,6 +111,7 @@ namespace LSRutil
                 else if (ClaimedFilesize != RealFilesize) throw new InvalidDataException("Incorrect filesize, corrupted track!");
 
                 track.size = (TrackSize)ReadInt();
+                if(!extensions && track.size > TrackSize.Singleplayer) throw new NotSupportedException(string.Format("Please turn extensions on to read {0} size maps.", track.size));
                 track.theme = (TrackTheme)ReadInt();
                 track.time = (TrackTime)ReadInt();
 
@@ -113,7 +125,7 @@ namespace LSRutil
                     {
                         var element = new TrackElement();
 
-                        stream.Seek(4, SeekOrigin.Current); // skip padding
+                        element.mystery = ReadInt();
                         var height = ReadHeight();
                         var id = reader.ReadByte();
                         element.theme = ReadElementTheme();
@@ -127,6 +139,9 @@ namespace LSRutil
                     }
                     stream.Seek(skip, SeekOrigin.Current);
                 }
+
+                stream.Seek(65572, SeekOrigin.Begin);
+                track.playable = ReadInt() == 1;
             }
 
             return track;

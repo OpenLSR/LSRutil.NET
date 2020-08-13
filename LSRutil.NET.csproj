@@ -5,12 +5,14 @@
     <TargetFrameworks>netcoreapp3.0;net471</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <RootNamespace>LSRutil</RootNamespace>
-    <Version>0.8.1</Version>
+    <Version>0.9.0</Version>
     <Authors>Zsolt Zitting</Authors>
     <Copyright></Copyright>
     <Company></Company>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <RepositoryUrl>https://github.com/YellowberryHN/LSRutil.NET</RepositoryUrl>
+    <Description>LSRutil.NET is a library for reading and eventually writing the LEGO Stunt Rally .trk file format. It parses tracks into a format that is easy to work with, and allows people to make converters and parsers for the format.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Examples\**" />

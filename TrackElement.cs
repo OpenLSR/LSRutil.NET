@@ -9,12 +9,14 @@ namespace LSRutil
         /// <summary>
         /// The non-normalized ID, as a byte straight from the file.
         /// </summary>
-        public byte id;
+        public byte id { get => _id; set => SetId(value); }
+        private byte _id;
 
         /// <summary>
         /// The theme of the track element.
         /// </summary>
-        public TrackTheme theme;
+        public TrackTheme theme { get => _theme; set => SetTheme(value); }
+        private TrackTheme _theme;
 
         /// <summary>
         /// The rotation of the track element.
@@ -26,6 +28,11 @@ namespace LSRutil
         /// </summary>
         public GridPosition pos;
 
+        /// <summary>
+        /// An int, unknown purpose.
+        /// </summary>
+        public int mystery;
+
         /// <summary> X value of element position, provided for ease of use. </summary>
         public int X { set => this.pos.X = value; get => this.pos.X; }
         /// <summary> Y value of element position, provided for ease of use. </summary>
@@ -36,7 +43,8 @@ namespace LSRutil
         /// <summary>
         /// The normalized ID, from 0 to 73.
         /// </summary>
-        public int xid;
+        public int xid { get => _xid; set => SetId(value); }
+        private int _xid;
 
         /// <summary>
         /// Instanciates a new track element with given arguments.
@@ -51,7 +59,6 @@ namespace LSRutil
             this.theme = (TrackTheme)theme;
             this.rotation = (TrackRotation)rotation;
             this.pos = pos;
-            this.xid = GetElement(this.theme, this.id);
         }
 
         /// <summary>
@@ -68,7 +75,6 @@ namespace LSRutil
             this.theme = (TrackTheme)theme;
             this.rotation = (TrackRotation)rotation;
             this.pos = new GridPosition((int)pos.X, (int)pos.Y, (int)pos.Z);
-            this.xid = GetElement(this.theme, this.id);
         }
 
         /// <summary>
@@ -85,8 +91,20 @@ namespace LSRutil
         /// <param name="elementId">The non-normalized element ID</param>
         public void SetId(byte elementId)
         {
-            this.id = elementId;
-            this.xid = GetElement(this.theme, this.id);
+            this._id = elementId;
+            this._xid = GetElement(this.theme, this._id);
+        }
+
+        public void SetId(int xid)
+        {
+            this._xid = xid;
+            this._id = GetElement(this.theme, this._xid);
+        }
+
+        public void SetTheme(TrackTheme theme)
+        {
+            this._theme = theme;
+            if(this._xid >= 0) SetId(this._xid);
         }
 
         /// <summary>
@@ -95,8 +113,8 @@ namespace LSRutil
         public void GetInfo()
         {
             Console.WriteLine("### Element information ###");
-            Console.WriteLine("ID: 0x{0:X2}", this.id);
-            Console.WriteLine("XID: {0}", this.xid);
+            Console.WriteLine("ID: 0x{0:X2}", this._id);
+            Console.WriteLine("XID: {0}", this._xid);
             Console.WriteLine("Theme: {0}", this.theme);
             Console.WriteLine("Rotation: {0} ({1})", this.rotation, (int)this.rotation);
             Console.WriteLine("Position: {0}", this.pos);

@@ -5,7 +5,11 @@ VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LSRutil.NET", "LSRutil.NET.csproj", "{8435A509-306E-424D-88AA-DEABB779DF54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadTrack", "Examples\ReadTrack\ReadTrack.csproj", "{806DDBAC-A303-487B-B9C2-4B88809FC889}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadTrack", "Examples\ReadTrack\ReadTrack.csproj", "{806DDBAC-A303-487B-B9C2-4B88809FC889}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteTrack", "Examples\WriteTrack\WriteTrack.csproj", "{F22846D5-D9D7-4914-A40C-48BAB30E5248}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThemeChange", "Examples\ThemeChange\ThemeChange.csproj", "{7F5A019B-D222-414F-BBBE-FBDEE204B4D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{806DDBAC-A303-487B-B9C2-4B88809FC889}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{806DDBAC-A303-487B-B9C2-4B88809FC889}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{806DDBAC-A303-487B-B9C2-4B88809FC889}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F22846D5-D9D7-4914-A40C-48BAB30E5248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F22846D5-D9D7-4914-A40C-48BAB30E5248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F22846D5-D9D7-4914-A40C-48BAB30E5248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F22846D5-D9D7-4914-A40C-48BAB30E5248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F5A019B-D222-414F-BBBE-FBDEE204B4D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F5A019B-D222-414F-BBBE-FBDEE204B4D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F5A019B-D222-414F-BBBE-FBDEE204B4D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F5A019B-D222-414F-BBBE-FBDEE204B4D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

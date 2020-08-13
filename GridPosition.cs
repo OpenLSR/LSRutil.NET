@@ -22,7 +22,11 @@
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            int hash = 47;
+            hash = (hash * 5) + X.GetHashCode();
+            hash = (hash * 5) + Y.GetHashCode();
+            hash = (hash * 5) + Z.GetHashCode();
+            return hash;
         }
 
         public override string ToString()
