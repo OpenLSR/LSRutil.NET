@@ -10,44 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a55ec752-8ee5-4525-9126-3d053ab55880" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/contentModel.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/riderModule.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AI/AIData.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AI/CorneringData.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Examples/ReadMotoVideo/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Examples/ReadMotoVideo/ReadMotoVideo.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Examples/WriteRF/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Examples/WriteRF/WriteRF.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Examples/WriteRF/smile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Examples/WriteRF/test.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LSRutil.NET.sln.DotSettings" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MVD/MVDReader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/RF/RfReader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/RF/RfWriter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Structures/MotoVideo.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Structures/ResourceArchive.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AIData.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CorneringData.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Examples/ReadRF/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Examples/ReadRF/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Examples/ReadTrack/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Examples/ReadTrack/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Examples/ThemeChange/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Examples/ThemeChange/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Examples/WriteTrack/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Examples/WriteTrack/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSRutil.NET.Lite.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LSRutil.NET.Lite.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSRutil.NET.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LSRutil.NET.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSRutil.NET.sln" beforeDir="false" afterPath="$PROJECT_DIR$/LSRutil.NET.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RF/ResourceArchive.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Structures/Constants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Structures/Constants.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Structures/GridPosition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Structures/GridPosition.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Structures/ResourceFile.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Structures/Track.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Structures/Track.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Structures/TrackElement.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TRK/TRKReader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TRK/TrkReader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TRK/TRKWriter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TRK/TrkWriter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LSRutil.NET/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -219,7 +182,7 @@
       <updated>1606203905522</updated>
       <workItem from="1606204020654" duration="10916000" />
       <workItem from="1606315224240" duration="6025000" />
-      <workItem from="1606350933324" duration="4310000" />
+      <workItem from="1606350933324" duration="4996000" />
     </task>
     <servers />
   </component>
