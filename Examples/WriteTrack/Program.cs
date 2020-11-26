@@ -1,5 +1,5 @@
-﻿using System;
-using LSRutil;
+﻿using LSRutil;
+using LSRutil.TRK;
 using static LSRutil.Constants;
 
 namespace WriteTrack
@@ -8,7 +8,7 @@ namespace WriteTrack
     {
         static void Main(string[] args)
         {
-            var writer = new TRKWriter();
+            var writer = new TrkWriter();
             var track = new Track() {
                 size = TrackSize.Multiplayer,
                 theme = TrackTheme.Ice,

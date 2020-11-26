@@ -1,4 +1,5 @@
 ﻿using LSRutil;
+using LSRutil.TRK;
 using static LSRutil.Constants;
 
 namespace ThemeChange
@@ -15,8 +16,8 @@ namespace ThemeChange
 
         static void Main(string[] args)
         {
-            var writer = new TRKWriter();
-            var reader = new TRKReader();
+            var writer = new TrkWriter();
+            var reader = new TrkReader();
 
             var track = reader.ReadTrack(filename);
             track.theme = theme;

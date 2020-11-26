@@ -2,13 +2,14 @@
 using System.IO;
 using System.Text;
 using static LSRutil.Constants;
+// ReSharper disable MemberCanBePrivate.Global
 
-namespace LSRutil
+namespace LSRutil.TRK
 {
-    public class TRKWriter
+    public class TrkWriter
     {
-        private Stream stream;
-        private BinaryWriter writer;
+        private Stream _stream;
+        private BinaryWriter _writer;
 
         /// <summary>
         /// Enables extended features which are not supported by the official standard.
@@ -16,12 +17,13 @@ namespace LSRutil
         /// <remarks>
         /// <para>Allows you to use the <see cref="TrackSize.Mega"/> track size.</para>
         /// </remarks>
+        // ReSharper disable once RedundantDefaultMemberInitializer
         public readonly bool extensions = false;
 
         /// <summary>
         /// The <a href="https://en.wikipedia.org/wiki/File_format#Magic_number">file magic</a> for TRK files.
         /// </summary>
-        private readonly static string LEGOHeader = "LEGO MOTO\0\0\0";
+        private const string legoHeader = "LEGO MOTO\0\0\0";
 
         /// <summary>
         /// The TRK file format version number.
@@ -29,27 +31,27 @@ namespace LSRutil
         /// <remarks>
         /// <para>Anything other than 5 causes a standardized implementation to crash.</para>
         /// </remarks>
-        private readonly static int TRKVersion = 5;
+        private const int trkVersion = 5;
 
         /// <summary>
         /// The total filesize of the TRK file in bytes.
         /// </summary>
         /// <remarks>
-        /// <para>If the header has an incorrect filesize, standarized implementations will crash.</para>
+        /// <para>If the header has an incorrect filesize, standardized implementations will crash.</para>
         /// <para>If the file is not exactly 65,576 bytes long, standardized implementations will ignore it.</para>
         /// </remarks>
-        private readonly static int Filesize = 65576;
+        private const int filesize = 65576;
 
         /// <summary>
         /// The fixed padding bytes used in the TRK format between regions of elements.
         /// </summary>
-        private readonly static byte[] TRKPad = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0 };
+        private static readonly byte[] trkPad = { 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0 };
 
         /// <summary>
-        /// Creates a new TRKWriter to write a track file.
+        /// Creates a new TrkTrkWriter to write a track file.
         /// </summary>
         /// <param name="extensions">Enables extended features which are not supported by the official standard.</param>
-        public TRKWriter(bool extensions = false) {
+        public TrkWriter(bool extensions = false) {
             this.extensions = extensions;
         }
 
@@ -59,7 +61,7 @@ namespace LSRutil
         /// <param name="str">The string to write</param>
         private void WriteString(string str)
         {
-            writer.Write(Encoding.ASCII.GetBytes(str));
+            _writer.Write(Encoding.ASCII.GetBytes(str));
         }
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace LSRutil
         /// <param name="data">The int to write</param>
         private void WriteData(int data)
         {
-            writer.Write(BitConverter.GetBytes(data));
+            _writer.Write(BitConverter.GetBytes(data));
         }
 
         /// <summary>
@@ -77,7 +79,7 @@ namespace LSRutil
         /// <param name="data">The float to write</param>
         private void WriteData(float data)
         {
-            writer.Write(BitConverter.GetBytes(data));
+            _writer.Write(BitConverter.GetBytes(data));
         }
 
         /// <summary>
@@ -86,7 +88,7 @@ namespace LSRutil
         /// <param name="data">The byte to write</param>
         private void WriteByte(byte data)
         {
-            writer.Write(data);
+            _writer.Write(data);
         }
 
         /// <summary>
@@ -99,7 +101,7 @@ namespace LSRutil
             WriteData(GetHeight(element.Y));
             WriteByte(element.id);
             WriteByte(GetElementTheme(element.theme));
-            writer.Write(new byte[] {0,0}); // more padding
+            _writer.Write(new byte[] {0,0}); // more padding
             WriteData((int)element.rotation);
         }
 
@@ -108,7 +110,7 @@ namespace LSRutil
         /// </summary>
         private void WriteEmptyElement()
         {
-            writer.Write(new byte[] { 0, 0, 0, 0, 0, 0, 128, 191, 255, 255, 255, 255, 0, 0, 0, 0 });
+            _writer.Write(new byte[] { 0, 0, 0, 0, 0, 0, 128, 191, 255, 255, 255, 255, 0, 0, 0, 0 });
         }
 
         /// <summary>
@@ -144,11 +146,11 @@ namespace LSRutil
         /// <param name="size">The track size</param>
         private void WriteTrackPadding(TrackSize size)
         {
-            int amt = 56 - ( (int)size * 8 );
+            var amt = 56 - (int)size * 8;
 
             for (var i = 0; i < amt; i++)
             {
-                writer.Write(TRKPad);
+                _writer.Write(trkPad);
             }
         }
 
@@ -159,24 +161,27 @@ namespace LSRutil
         /// <returns>Amount of track elements written</returns>
         private int WriteTrackElements(Track track)
         {
-            int written = 0;
-            int loop = (int)Math.Sqrt(track.GetMaxElements());
+            var written = 0;
+            var loop = (int)Math.Sqrt(track.GetMaxElements());
 
             var elements = track.GetElements();
 
-            for (int z = 0; z < loop; z++)
+            for (var z = 0; z < loop; z++)
             {
-                for (int x = 0; x < loop; x++)
+                for (var x = 0; x < loop; x++)
                 {
                     var element = elements.Find(l => l.X.Equals(x) && l.Z.Equals(z));
                     // There is an element at these coordinates
-                    if(element != null && element.xid != -1) WriteElement(element);
-                    // Height block
-                    else if (element.xid == -1 && element.Y > 0)
+                    if (element != null)
                     {
-                        element.Y -= 1;
-                        element.xid = 69;
-                        WriteElement(element);
+                        if (element.xid != -1) WriteElement(element);
+                        // Height block
+                        else if (element.xid == -1 && element.Y > 0)
+                        {
+                            element.Y -= 1;
+                            element.xid = 69;
+                            WriteElement(element);
+                        }
                     }
                     else WriteEmptyElement();
                     
@@ -195,23 +200,24 @@ namespace LSRutil
         /// <param name="stream">The stream to write the track to</param>
         public void WriteTrack(Track track, Stream stream)
         {
-            if (!extensions && track.size > TrackSize.Singleplayer) throw new NotSupportedException(string.Format("Please turn extensions on to write {0} size maps.", track.size));
-            int correctLength = track.GetMaxElements();
+            if (!extensions && track.size > TrackSize.Singleplayer) throw new NotSupportedException($"Please turn extensions on to write {track.size} size maps.");
+            var correctLength = track.GetMaxElements();
 
-            this.stream = stream;
+            _stream = stream;
 
-            using (writer = new BinaryWriter(stream))
+            using (_writer = new BinaryWriter(_stream))
             {
-                WriteString(LEGOHeader);
-                WriteData(TRKVersion);
-                WriteData(Filesize);
+                WriteString(legoHeader);
+                WriteData(trkVersion);
+                WriteData(filesize);
                 WriteData((int)track.size);
                 WriteData((int)track.theme);
                 WriteData((int)track.time);
                 var elementsWritten = WriteTrackElements(track);
                 if (elementsWritten != correctLength) {
-                    writer.Dispose();
-                    throw new NotSupportedException(string.Format("Not enough track elements were written to the file. Got {0}, expected {1}.", elementsWritten, correctLength)); 
+                    _writer.Dispose();
+                    throw new NotSupportedException(
+                        $"Not enough track elements were written to the file. Got {elementsWritten}, expected {correctLength}."); 
                 }
 
                 for (var pad = 0; pad < 64; pad++)
@@ -219,9 +225,9 @@ namespace LSRutil
                     WriteTrackPadding(track.size);
                 }
 
-                writer.Seek(65572,SeekOrigin.Begin);
+                _writer.Seek(65572,SeekOrigin.Begin);
                 WriteData(track.playable?1:0);
-                Console.WriteLine("Wrote {0} bytes.", writer.BaseStream.Position);
+                //Console.WriteLine("Wrote {0} bytes.", writer.BaseStream.Position);
             }
         }
 

@@ -15,6 +15,7 @@
 
         public override bool Equals(object obj)
         {
+            if(obj == null) return false;
             if(obj.GetType() != GetType()) return false;
             var arg = (GridPosition)obj;
             return X.Equals(arg.X) && Y.Equals(arg.Y) && Z.Equals(arg.Z);
@@ -22,16 +23,16 @@
 
         public override int GetHashCode()
         {
-            int hash = 47;
-            hash = (hash * 5) + X.GetHashCode();
-            hash = (hash * 5) + Y.GetHashCode();
-            hash = (hash * 5) + Z.GetHashCode();
+            var hash = 47;
+            hash = hash * 5 + X.GetHashCode();
+            hash = hash * 5 + Y.GetHashCode();
+            hash = hash * 5 + Z.GetHashCode();
             return hash;
         }
 
         public override string ToString()
         {
-            return string.Format("({0},{1},{2})",X,Y,Z);
+            return $"({X},{Y},{Z})";
         }
     }
 }

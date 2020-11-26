@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Zsolt\AppData\Local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Zsolt\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_LSRutil.NET.405532426.00" t="ExcludeRecursive" />
+    <e p="D:\_CODE\C#\LSRutil.NET" t="IncludeRecursive">
+      <e p=".gitignore" t="Include" />
+      <e p="AI" t="Include">
+        <e p="AIData.cs" t="Include" />
+        <e p="CorneringData.cs" t="Include" />
+      </e>
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="Examples" t="Include">
+        <e p="ReadMotoVideo" t="IncludeRecursive">
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp3.1" t="Include">
+                <e p="ReadMotoVideo.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Program.cs" t="Include" />
+          <e p="ReadMotoVideo.csproj" t="IncludeRecursive" />
+        </e>
+        <e p="ReadRF" t="IncludeRecursive">
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp3.1" t="Include">
+                <e p="ReadRF.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Program.cs" t="Include" />
+          <e p="ReadRF.csproj" t="IncludeRecursive" />
+        </e>
+        <e p="ReadTrack" t="IncludeRecursive">
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp3.1" t="Include">
+                <e p="ReadTrack.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Program.cs" t="Include" />
+          <e p="Properties" t="Include">
+            <e p="launchSettings.json" t="Include" />
+          </e>
+          <e p="ReadTrack.csproj" t="IncludeRecursive" />
+        </e>
+        <e p="ThemeChange" t="IncludeRecursive">
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp3.1" t="Include">
+                <e p="ThemeChange.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Program.cs" t="Include" />
+          <e p="ThemeChange.csproj" t="IncludeRecursive" />
+        </e>
+        <e p="WriteRF" t="IncludeRecursive">
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp3.1" t="Include">
+                <e p="WriteRF.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Program.cs" t="Include" />
+          <e p="smile.png" t="Include" />
+          <e p="test.txt" t="Include" />
+          <e p="WriteRF.csproj" t="IncludeRecursive" />
+        </e>
+        <e p="WriteTrack" t="IncludeRecursive">
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp3.1" t="Include">
+                <e p="WriteTrack.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Program.cs" t="Include" />
+          <e p="WriteTrack.csproj" t="IncludeRecursive" />
+        </e>
+      </e>
+      <e p="LICENSE.md" t="Include" />
+      <e p="LSRutil.NET.csproj" t="IncludeRecursive" />
+      <e p="LSRutil.NET.csproj.DotSettings" t="Include" />
+      <e p="LSRutil.NET.Lite.csproj" t="IncludeRecursive" />
+      <e p="LSRutil.NET.sln" t="IncludeFlat" />
+      <e p="LSRutil.NET.sln.DotSettings" t="Include" />
+      <e p="MVD" t="Include">
+        <e p="MVDReader.cs" t="Include" />
+      </e>
+      <e p="obj" t="ExcludeRecursive">
+        <e p="Debug" t="Include">
+          <e p="net471" t="Include">
+            <e p="LSRutil.NET.AssemblyInfo.cs" t="Include" />
+            <e p="LSRutil.NET.Lite.AssemblyInfo.cs" t="Include" />
+          </e>
+          <e p="netcoreapp3.0" t="Include">
+            <e p="LSRutil.NET.AssemblyInfo.cs" t="Include" />
+            <e p="LSRutil.NET.Lite.AssemblyInfo.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="README.md" t="Include" />
+      <e p="RF" t="Include">
+        <e p="RfReader.cs" t="Include" />
+        <e p="RfWriter.cs" t="Include" />
+      </e>
+      <e p="Structures" t="Include">
+        <e p="Constants.cs" t="Include" />
+        <e p="GridPosition.cs" t="Include" />
+        <e p="MotoVideo.cs" t="Include" />
+        <e p="ResourceArchive.cs" t="Include" />
+        <e p="Track.cs" t="Include" />
+      </e>
+      <e p="TRK" t="Include">
+        <e p="TRKReader.cs" t="Include" />
+        <e p="TRKWriter.cs" t="Include" />
+      </e>
+    </e>
+  </component>
+</project>

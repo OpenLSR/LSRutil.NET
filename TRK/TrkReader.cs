@@ -2,13 +2,14 @@
 using System.IO;
 using System.Text;
 using static LSRutil.Constants;
+// ReSharper disable MemberCanBePrivate.Global
 
-namespace LSRutil
+namespace LSRutil.TRK
 {
-    public class TRKReader
+    public class TrkReader
     {
-        private Stream stream;
-        private BinaryReader reader;
+        private Stream _stream;
+        private BinaryReader _reader;
 
         /// <summary>
         /// Enables extended features which are not supported by the official standard.
@@ -16,13 +17,14 @@ namespace LSRutil
         /// <remarks>
         /// <para>Allows you to use the <see cref="TrackSize.Mega"/> track size.</para>
         /// </remarks>
+        // ReSharper disable once RedundantDefaultMemberInitializer
         public readonly bool extensions = false;
 
         /// <summary>
-        /// Instanciates a new TRKReader to read a track file.
+        /// Instanciates a new TrkReader to read a track file.
         /// </summary>
         /// <param name="extensions">Enables extended features which are not supported by the official standard.</param>
-        public TRKReader(bool extensions = false) {
+        public TrkReader(bool extensions = false) {
             this.extensions = extensions;
         }
 
@@ -33,7 +35,7 @@ namespace LSRutil
         /// <returns>The string</returns>
         private string ReadString(int len)
         {
-            byte[] data = reader.ReadBytes(len);
+            var data = _reader.ReadBytes(len);
             return Encoding.UTF8.GetString(data);
         }
 
@@ -43,7 +45,7 @@ namespace LSRutil
         /// <returns>The integer</returns>
         private int ReadInt()
         {
-            byte[] data = reader.ReadBytes(4);
+            var data = _reader.ReadBytes(4);
             return BitConverter.ToInt32(data, 0);
         }
 
@@ -53,7 +55,7 @@ namespace LSRutil
         /// <returns>The float</returns>
         private float ReadFloat()
         {
-            byte[] data = reader.ReadBytes(4);
+            var data = _reader.ReadBytes(4);
             return BitConverter.ToSingle(data, 0);
         }
 
@@ -63,7 +65,7 @@ namespace LSRutil
         /// <returns>The track height</returns>
         private int ReadHeight()
         {
-            int height = (int)ReadFloat();
+            var height = (int)ReadFloat();
             return height == -1 ? 0 : (extensions ? height/8 : Math.Min(height/8, 3));
         }
 
@@ -73,7 +75,7 @@ namespace LSRutil
         /// <returns>The track element theme</returns>
         private TrackTheme ReadElementTheme()
         {
-            int data = reader.ReadByte();
+            int data = _reader.ReadByte();
             TrackTheme theme;
 
             switch (data)
@@ -96,42 +98,42 @@ namespace LSRutil
         /// <exception cref="InvalidDataException">Thrown when the track file is formatted incorrectly.</exception>
         public Track ReadTrack(Stream stream)
         {
-            this.stream = stream;
+            _stream = stream;
 
             var track = new Track();
 
-            using (reader = new BinaryReader(stream))
+            using (_reader = new BinaryReader(_stream))
             {
-                int RealFilesize = (int)stream.Length;
-                string LEGOHeader = ReadString(12);
-                int TRKVersion = ReadInt();
-                int ClaimedFilesize = ReadInt();
+                var realFilesize = (int)stream.Length;
+                var legoHeader = ReadString(12);
+                var trkVersion = ReadInt();
+                var claimedFilesize = ReadInt();
 
-                if (ClaimedFilesize != 65576) throw new InvalidDataException("TRK file reports incorrect filesize!");
-                else if (ClaimedFilesize != RealFilesize) throw new InvalidDataException("Incorrect filesize, corrupted track!");
+                if (claimedFilesize != 65576) throw new InvalidDataException("TRK file reports incorrect filesize!");
+                if (claimedFilesize != realFilesize) throw new InvalidDataException("Incorrect filesize, corrupted track!");
 
                 track.size = (TrackSize)ReadInt();
-                if(!extensions && track.size > TrackSize.Singleplayer) throw new NotSupportedException(string.Format("Please turn extensions on to read {0} size maps.", track.size));
+                if(!extensions && track.size > TrackSize.Singleplayer) throw new NotSupportedException($"Please turn extensions on to read {track.size} size maps.");
                 track.theme = (TrackTheme)ReadInt();
                 track.time = (TrackTime)ReadInt();
 
 
-                int iters = 8 * ((int)track.size + 1);
-                int skip = (56 - ((int)track.size * 8)) * 16;
+                var iters = 8 * ((int)track.size + 1);
+                var skip = (56 - (int)track.size * 8) * 16;
 
-                for (int z = 0; z < iters; z++)
+                for (var z = 0; z < iters; z++)
                 {
-                    for (int x = 0; x < iters; x++)
+                    for (var x = 0; x < iters; x++)
                     {
                         var element = new TrackElement();
 
                         element.mystery = ReadInt();
                         var height = ReadHeight();
-                        var id = reader.ReadByte();
+                        var id = _reader.ReadByte();
                         element.theme = ReadElementTheme();
                         element.SetId(id);
                         stream.Seek(2, SeekOrigin.Current);
-                        element.rotation = (TrackRotation)reader.ReadByte();
+                        element.rotation = (TrackRotation)_reader.ReadByte();
                         stream.Seek(3, SeekOrigin.Current);
                         element.pos = new GridPosition(x, height, z);
 
@@ -154,8 +156,8 @@ namespace LSRutil
         /// <returns>The track as an object</returns>
         public Track ReadTrack(string filename)
         {
-            stream = File.Open(filename, FileMode.Open, FileAccess.Read);
-            return ReadTrack(stream);
+            _stream = File.Open(filename, FileMode.Open, FileAccess.Read);
+            return ReadTrack(_stream);
         }
     }
 }

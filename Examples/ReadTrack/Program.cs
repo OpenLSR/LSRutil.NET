@@ -1,11 +1,11 @@
 ﻿using System;
-using LSRutil;
+using LSRutil.TRK;
 
 namespace ReadTrack
 {
     class Program
     {
-        readonly static char[][] visTable = new char[16][]
+        static readonly char[][] visTable = new char[16][]
         {
             new char[16],
             new char[16],
@@ -27,8 +27,8 @@ namespace ReadTrack
 
         static void SetVis(int x, int y, char vis)
         {
-            int tableX = 15 - x;
-            int tableY = 15 - y;
+            var tableX = 15 - x;
+            var tableY = 15 - y;
             visTable[tableY][tableX] = vis;
         }
 
@@ -46,7 +46,7 @@ namespace ReadTrack
 
         static void Main(string[] args)
         {
-            string filename = string.Empty;
+            var filename = string.Empty;
             try
             {
                 filename = args[0];
@@ -58,7 +58,7 @@ namespace ReadTrack
                 System.Environment.Exit(1);
             }
 
-            var reader = new TRKReader();
+            var reader = new TrkReader();
             var track = reader.ReadTrack(filename);
 
             track.GetInfo();
