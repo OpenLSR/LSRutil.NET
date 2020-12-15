@@ -8,14 +8,15 @@ LSRutil.NET is a library for reading and manipulating various types of file from
 ## Usage
 ```cs
 using LSRutil;
+using LSRutil.TRK;
 ...
 
-var reader = new TRKReader();
+var reader = new TrkReader();
 var track = reader.ReadTrack(@"C:\LSR\SavedTracks\dune.trk");
 
 Console.WriteLine("This track is using the {0} theme!", track.theme);
 ```
-Check out the [ReadTrack](Examples/ReadTrack/Program.cs), [WriteTrack](Examples/WriteTrack/Program.cs), [ThemeChange](Examples/ThemeChange/Program.cs) and [ReadRF](Examples/ReadRF/Program.cs) examples!
+Check out all of the [examples](Examples/)!
 
 ## Supported Formats
 <!-- ✔️❌⚠️ -->
@@ -48,6 +49,7 @@ I like to think I write useful code, so here are some projects that use LSRutil.
 
 ## Contributing
 Pull requests are always welcome, but major changes will not be accepted if they do not have a corresponding issue.
+Please open an issue first before working on a major feature.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
