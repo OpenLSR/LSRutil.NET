@@ -4,13 +4,22 @@ using System.Text;
 
 namespace LSRutil.RF
 {
+    /// <summary>
+    /// Class for reading RFH/RFD files.
+    /// </summary>
     public class RfReader
     {
         private Stream headerStream;
         private BinaryReader headerReader;
         private Stream dataStream;
         private BinaryReader dataReader;
-        
+
+        /// <summary>
+        /// Loads the archive from a header and data stream with specified filename.
+        /// </summary>
+        /// <param name="headerStream">The stream from the RFH file.</param>
+        /// <param name="dataStream">The stream from the RFD file.</param>
+        /// <returns>A <see cref="ResourceArchive"/> with the loaded streams' data.</returns>
         public ResourceArchive ReadArchive(Stream headerStream, Stream dataStream)
         {
             this.headerStream = headerStream;
@@ -53,6 +62,7 @@ namespace LSRutil.RF
         /// </summary>
         /// <param name="file">The file to load from. Extensions are optional.</param>
         /// <exception cref="FileNotFoundException">One of the files was not found.</exception>
+        /// <returns>A <see cref="ResourceArchive"/> with the loaded files' data.</returns>
         public ResourceArchive ReadArchive(string file)
         {
             var fileExt = Path.GetExtension(file);

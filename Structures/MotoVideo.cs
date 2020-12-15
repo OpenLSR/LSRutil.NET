@@ -4,6 +4,9 @@ using System.IO;
 
 namespace LSRutil
 {
+    /// <summary>
+    /// A class consisting of <see cref="MotoVideoFrame"/> objects and metadata.
+    /// </summary>
     public class MotoVideo
     {
         public static readonly byte[] fileMagic = { 
@@ -33,7 +36,7 @@ namespace LSRutil
         public int bitDepth;
 
         /// <summary>
-        /// A <see cref="System.Collections.Generic.List{T}"/> of <see cref="MotoVideoFrame"/> objects.
+        /// A list of frames contained in the video.
         /// </summary>
         public List<MotoVideoFrame> frames = new List<MotoVideoFrame>();
 
@@ -68,6 +71,9 @@ namespace LSRutil
         }
     }
 
+    /// <summary>
+    /// Class representing a single frame of a <see cref="MotoVideo"/>.
+    /// </summary>
     public class MotoVideoFrame
     {
         //RGB565, 16-bit
@@ -90,6 +96,7 @@ namespace LSRutil
             this.bytes = bytes;
             this.width = width;
             this.height = height;
+            this.bitDepth = bitDepth;
         }
 
         /// <summary>

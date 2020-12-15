@@ -1,6 +1,5 @@
 ﻿using LSRutil;
 using LSRutil.TRK;
-using static LSRutil.Constants;
 
 namespace WriteTrack
 {
@@ -10,9 +9,9 @@ namespace WriteTrack
         {
             var writer = new TrkWriter();
             var track = new Track() {
-                size = TrackSize.Multiplayer,
-                theme = TrackTheme.Ice,
-                time = TrackTime.Night
+                size = Track.TrackSize.Multiplayer,
+                theme = Track.TrackTheme.Ice,
+                time = Track.TrackTime.Night
             };
 
             track.Add(new TrackElement() {

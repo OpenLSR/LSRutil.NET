@@ -1,5 +1,8 @@
 ﻿namespace LSRutil
 {
+    /// <summary>
+    /// A simple class to define positions on the game grid.
+    /// </summary>
     public struct GridPosition
     {
         public int X;

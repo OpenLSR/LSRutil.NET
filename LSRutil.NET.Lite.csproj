@@ -6,25 +6,41 @@
     <LangVersion>8.0</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <RootNamespace>LSRutil</RootNamespace>
-    <Version>1.1.0</Version>
-    <Authors>Zsolt Zitting</Authors>
+    <Version>1.1.1</Version>
+    <Authors>OpenLSR Team</Authors>
     <Copyright></Copyright>
-    <Company></Company>
+    <Company>OpenLSR</Company>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/YellowberryHN/LSRutil.NET</RepositoryUrl>
+    <RepositoryUrl>https://github.com/OpenLSR/LSRutil.NET</RepositoryUrl>
     <Description>LSRutil.NET.Lite is a library for reading and writing the LEGO Stunt Rally .trk file format. It parses tracks into a format that is easy to work with, and allows people to make converters and parsers for the format.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="AI\**" />
     <Compile Remove="Examples\**" />
+    <Compile Remove="MVD\**" />
     <Compile Remove="RF\**" />
+    <Compile Remove="RTB\**" />
+    <Compile Remove="XBF\**" />
+    <EmbeddedResource Remove="AI\**" />
     <EmbeddedResource Remove="Examples\**" />
+    <EmbeddedResource Remove="MVD\**" />
     <EmbeddedResource Remove="RF\**" />
+    <EmbeddedResource Remove="RTB\**" />
+    <EmbeddedResource Remove="XBF\**" />
+    <None Remove="AI\**" />
     <None Remove="Examples\**" />
+    <None Remove="MVD\**" />
     <None Remove="RF\**" />
+    <None Remove="RTB\**" />
+    <None Remove="XBF\**" />
     <Compile Remove="AIData.cs" />
     <Compile Remove="CorneringData.cs" />
+    <Compile Remove="Structures\MotoVideo.cs" />
+    <Compile Remove="Structures\ResourceArchive.cs" />
     <Compile Remove="Structures\ResourceFile.cs" />
+    <Compile Remove="Structures\ResourceTable.cs" />
     <None Include="LICENSE.md">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

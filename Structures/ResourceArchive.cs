@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace LSRutil
 {
@@ -46,10 +47,10 @@ namespace LSRutil
         /// </summary>
         /// <param name="file">The file to add.</param>
         /// <param name="compress">If true, compresses file with zlib.</param>
-        public void Add(string file, bool compress=false)
+        public void Add(string file, bool compress=false, string path="")
         {
             var resFile = new ResourceFile();
-            resFile.Pack(file, compress);
+            resFile.Pack(file, compress, path);
             Add(resFile);
         }
 
@@ -68,6 +69,46 @@ namespace LSRutil
                 counter++;
             }
             return counter;
+        }
+
+        /// <summary>
+        /// A helper function which lists all files in a directory relative to the directory.
+        /// </summary>
+        /// <remarks>
+        /// Unfortunately relies on Linq, performance might not be fantastic.
+        /// </remarks>
+        /// <param name="directory">The directory to list files from.</param>
+        /// <param name="addToResource">Adds the list of files to the archive.</param>
+        /// <param name="compress">If added to resource, compress file.</param>
+        /// <returns>A list of relative files to the directory.</returns>
+        public List<string> GetRelativeFiles(string directory, bool addToResource = true, bool compress = false)
+        {
+            List<string> fileList = new List<string>();
+            foreach (var file in Directory.GetFiles(directory, "*", SearchOption.AllDirectories).ToList())
+            {
+                string fileRel = file;
+                while (fileRel.StartsWith(directory + Path.DirectorySeparatorChar))
+                {
+                    fileRel = fileRel.Substring(directory.Length + 1);
+                }
+                if (addToResource)
+                {
+                    Add(file, compress, fileRel);
+                }
+                fileList.Add(fileRel);
+            }
+
+            return fileList;
+        }
+
+        public void GenerateOffsets()
+        {
+            nextOffset = 0;
+            foreach (var resFile in this.resources)
+            {
+                resFile.offset = nextOffset;
+                nextOffset += resFile.compressedSize;
+            }
         }
     }
     
@@ -104,14 +145,15 @@ namespace LSRutil
             File.SetLastWriteTime(location, timestamp);
         }
 
-        public void Pack(string file, bool compress = false)
+        public void Pack(string file, bool compress = false, string path = "")
         {
+            if (path == string.Empty) path = file;
             using (var fileStream = new FileStream(file, FileMode.Open))
             using (var fileReader = new BinaryReader(fileStream))
             {
                 if(fileStream.Length > int.MaxValue) throw new NotSupportedException("File is too big to fit inside of RF archive.");
 
-                filepath = file;
+                filepath = path;
                 data = fileReader.ReadBytes((int)fileStream.Length);
 
                 fileReader.Close();

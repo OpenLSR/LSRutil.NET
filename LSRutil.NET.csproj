@@ -6,14 +6,15 @@
     <LangVersion>8.0</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <RootNamespace>LSRutil</RootNamespace>
-    <Version>1.1.0</Version>
-    <Authors>Zsolt Zitting</Authors>
+    <Version>1.1.1</Version>
+    <Authors>OpenLSR Team</Authors>
     <Copyright></Copyright>
-    <Company></Company>
+    <Company>OpenLSR</Company>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/YellowberryHN/LSRutil.NET</RepositoryUrl>
+    <RepositoryUrl>https://github.com/OpenLSR/LSRutil.NET</RepositoryUrl>
     <Description>LSRutil.NET is a library for reading and manipulating various types of file from the game LEGO Stunt Rally. It allows you to read and write track files, AI data, RFH/RFD resource files, and much more.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Examples\**" />
@@ -26,5 +27,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotNetZip" Version="1.15.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="XTK\" />
   </ItemGroup>
 </Project>

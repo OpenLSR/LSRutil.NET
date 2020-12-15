@@ -13,7 +13,7 @@ namespace ReadMotoVideo
             var timer = new Stopwatch();
             timer.Start();
             var reader = new MvdReader();
-            MotoVideo video = reader.ReadVideo(@"C:\LSR\art\taunts\opponents\videos\mrx.mvd");
+            MotoVideo video = reader.ReadVideo(@"C:\LSR\art\frontend\help\help.mvd");
             timer.Stop();
             Console.WriteLine("Loaded and parsed, took {0}ms", timer.ElapsedMilliseconds, video.numFrames);
             video.GetInfo();

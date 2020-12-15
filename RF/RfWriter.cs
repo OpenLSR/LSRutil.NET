@@ -4,6 +4,9 @@ using System.Text;
 
 namespace LSRutil.RF
 {
+    /// <summary>
+    /// Class for writing RFH/RFD files.
+    /// </summary>
     public class RfWriter
     {
         private Stream headerStream;
@@ -13,6 +16,9 @@ namespace LSRutil.RF
         /// <summary>
         /// Saves the archive as a header and data file with specified streams.
         /// </summary>
+        /// <param name="archive">The archive to save.</param>
+        /// <param name="headerStream">The stream for the RFH file being written to.</param>
+        /// <param name="dataStream">The stream for the RFD file being written to.</param>
         /// <exception cref="IOException"></exception>
         public void WriteArchive(ResourceArchive archive, Stream headerStream, Stream dataStream)
         {
@@ -40,6 +46,7 @@ namespace LSRutil.RF
         /// <summary>
         /// Saves the archive as a header and data file with specified filename.
         /// </summary>
+        /// <param name="archive">The archive to save.</param>
         /// <param name="file">The file to save to. Extensions are optional.</param>
         /// <exception cref="IOException"></exception>
         public void WriteArchive(ResourceArchive archive, string file)

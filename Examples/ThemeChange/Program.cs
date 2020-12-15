@@ -1,13 +1,12 @@
 ﻿using LSRutil;
 using LSRutil.TRK;
-using static LSRutil.Constants;
 
 namespace ThemeChange
 {
     class Program
     {
         static string filename = @"C:\LSR\SavedTracks\height.trk";
-        static TrackTheme theme = TrackTheme.Ice;
+        static Track.TrackTheme theme = Track.TrackTheme.Ice;
 
         static void ChangeTheme(TrackElement element)
         {

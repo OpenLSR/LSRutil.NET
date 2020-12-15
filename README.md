@@ -1,4 +1,4 @@
-# LSRutil.NET
+﻿# LSRutil.NET
 
 LSRutil.NET is a library for reading and manipulating various types of file from the game LEGO Stunt Rally. It allows you to read and write track files, AI data, RFH/RFD resource files, and much more.
 
@@ -17,8 +17,23 @@ Console.WriteLine("This track is using the {0} theme!", track.theme);
 ```
 Check out the [ReadTrack](Examples/ReadTrack/Program.cs), [WriteTrack](Examples/WriteTrack/Program.cs), [ThemeChange](Examples/ThemeChange/Program.cs) and [ReadRF](Examples/ReadRF/Program.cs) examples!
 
+## Supported Formats
+<!-- ✔️❌⚠️ -->
+| Format | Read | Write | 
+|-|:-:|:-:|
+|[Track File (.trk)](https://github.com/OpenLSR/LSRutil.NET/wiki/Track-File-(.trk))<sup>[1](#f1)</sup>|✔️|✔️|
+|AI Data (.bin, .txt)|✔️|✔️|
+|AI Cornering Data (.dat, .txt)|✔️|✔️|
+|Moto Video (.mvd)|✔️|✔️|
+|Resource Archive Files (.rfh/.rfd)|✔️|[⚠](# "Compression for written archives is not yet supported.")|
+|Resource Table (.rtb)|✔️|❌|
+|Xanadu Binary Format (.xbf)|[⚠](# "Preliminary support.")|❌|
+
+
+<sup id="f1">**1**</sup> Format is available in LSRutil.NET.Lite
+
 ## Why are there 2 versions?
-Well, the Lite version only contains code to read and write .TRK files, so it can be as portable as possible, without having to carry heavy dependancies like DotNetZip alongside it. Functionally, the code for reading tracks is the same in both versions, but the full version supports more formats.
+Well, the Lite version only contains code to read and write track files (.trk), so it can be as portable as possible, without having to carry heavy dependencies like DotNetZip alongside it. Functionally, the code for reading tracks is the same in both versions, but the full version supports more formats.
 
 ## Projects
 I like to think I write useful code, so here are some projects that use LSRutil.NET.

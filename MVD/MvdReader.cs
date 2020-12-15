@@ -3,6 +3,9 @@ using System.IO;
 
 namespace LSRutil.MVD
 {
+    /// <summary>
+    /// Class for reading MVD files.
+    /// </summary>
     public class MvdReader
     {
         private Stream stream;
@@ -73,6 +76,12 @@ namespace LSRutil.MVD
         {
             var data = reader.ReadBytes(4);
             return BitConverter.ToInt32(data, 0);
+        }
+
+        public void CloseHandles()
+        {
+            reader.Close();
+            stream.Close();
         }
     }
 }

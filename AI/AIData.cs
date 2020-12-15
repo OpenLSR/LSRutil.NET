@@ -6,6 +6,9 @@
 namespace LSRutil.AI
 {
     // ReSharper disable once InconsistentNaming
+    /// <summary>
+    /// Class for AI data info.
+    /// </summary>
     public class AIData
     {
         public ushort Reflex;
