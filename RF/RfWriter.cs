@@ -32,7 +32,7 @@ namespace LSRutil.RF
                 {
                     headerWriter.Write(resFile.filepath.Length+1); // Compensates for null terminator to be added.
                     headerWriter.Write((uint)((DateTimeOffset)resFile.timestamp).ToUnixTimeSeconds());
-                    headerWriter.Write(resFile.compressionType);
+                    headerWriter.Write((int)resFile.compressionType);
                     headerWriter.Write(resFile.compressedSize);
                     headerWriter.Write(resFile.offset);
                     headerWriter.Write(Encoding.ASCII.GetBytes(resFile.filepath+"\0"));

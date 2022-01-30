@@ -10,8 +10,8 @@ namespace WriteRF
         static void Main(string[] args)
         {
             var resArchive = new ResourceArchive();
-            resArchive.Add("test.txt");
-            resArchive.Add("smile.png");
+            resArchive.Add("test.txt");//, ResourceCompressionType.Best);
+            resArchive.Add("smile.png");//, ResourceCompressionType.Fast);
 
             try
             {
