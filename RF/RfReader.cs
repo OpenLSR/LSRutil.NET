@@ -65,7 +65,7 @@ namespace LSRutil.RF
         /// <returns>A <see cref="ResourceArchive"/> with the loaded files' data.</returns>
         public ResourceArchive ReadArchive(string file)
         {
-            var fileExt = Path.GetExtension(file);
+            var fileExt = Path.GetExtension(file).ToLower();
             if(fileExt==".rfh"||fileExt==".rfd") file = Path.ChangeExtension(file, null);
             headerStream = new FileStream(file+".rfh", FileMode.Open);
             dataStream = new FileStream(file+".rfd", FileMode.Open);

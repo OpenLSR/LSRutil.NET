@@ -51,7 +51,7 @@ namespace LSRutil.RF
         /// <exception cref="IOException"></exception>
         public void WriteArchive(ResourceArchive archive, string file)
         {
-            var fileExt = Path.GetExtension(file);
+            var fileExt = Path.GetExtension(file).ToLower();
             if(fileExt==".rfh"||fileExt==".rfd") file = Path.ChangeExtension(file, null);
             headerStream = new FileStream(file+".rfh", FileMode.CreateNew);
             dataStream = new FileStream(file+".rfd", FileMode.CreateNew);

@@ -77,7 +77,7 @@ namespace LSRutil.TRK
         /// </summary>
         /// <param name="stream">The stream to read the track from</param>
         /// <returns>The track as an object</returns>
-        /// <exception cref="InvalidDataException">Thrown when the track file is formatted incorrectly.</exception>
+        /// <exception cref="InvalidDataException">Thrown when the track file is formatted incorrectly or corrupted.</exception>
         public Track ReadTrack(Stream stream)
         {
             this.stream = stream;
@@ -87,6 +87,8 @@ namespace LSRutil.TRK
             using (reader = new BinaryReader(this.stream))
             {
                 var realFilesize = (int)stream.Length;
+                if (realFilesize < 20) throw new InvalidDataException("Incorrect filesize, corrupted track!");
+
                 var legoHeader = ReadString(12);
                 var trkVersion = ReadInt();
                 var claimedFilesize = ReadInt();

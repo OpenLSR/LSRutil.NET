@@ -131,7 +131,7 @@ namespace LSRutil
         }
     }
 
-    public class TrackElement
+    public class TrackElement : IEquatable<TrackElement>
     {
         public enum TrackRotation
         {
@@ -139,6 +139,17 @@ namespace LSRutil
             North = 1,
             East = 2,
             South = 3
+        }
+
+        public enum TrackOrigin
+        {
+            Default = 0,
+            _1x2,
+            _1x3,
+            _2x1,
+            _2x2,
+            _Other2x2,
+            _3x3
         }
 
         /// <summary>
@@ -172,6 +183,11 @@ namespace LSRutil
         /// An int, unknown purpose.
         /// </summary>
         public int mystery;
+
+        /// <summary>
+        /// The origin of the track piece, determines what coordinate of the piece is the rotation axis
+        /// </summary>
+        public TrackOrigin origin;
 
         /// <summary> X value of element position, provided for ease of use. </summary>
         public int X { set => pos.X = value; get => pos.X; }
@@ -274,6 +290,84 @@ namespace LSRutil
             new byte[] { 0x30, 0x31, 0x32, 0x33, 0x34, 0x36, 0x37, 0x38, 0x39, 0x3B, 0x3C, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x53, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x66, 0x67, 0x68, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90 }
         };
 
+        private static List<TrackOrigin> elementOrigins = new List<TrackOrigin> {
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin._1x2,
+            TrackOrigin.Default,
+            TrackOrigin._2x2,
+            TrackOrigin.Default,
+            TrackOrigin._1x3,
+            TrackOrigin.Default,
+            TrackOrigin._2x2,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin._1x3,
+            TrackOrigin.Default,
+            TrackOrigin._2x2,
+            TrackOrigin.Default,
+            TrackOrigin._1x2,
+            TrackOrigin._1x3,
+            TrackOrigin._1x2,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin._2x1,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin._2x1,
+            TrackOrigin._2x1,
+            TrackOrigin._2x1,
+            TrackOrigin._2x1,
+            TrackOrigin._2x1,
+            TrackOrigin._Other2x2,
+            TrackOrigin.Default,
+            TrackOrigin._2x1,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin._3x3,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin._3x3,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default,
+            TrackOrigin.Default
+        };
+
         /// <summary>
         /// Converts normalized element ID to non-normalized element ID.
         /// </summary>
@@ -304,6 +398,12 @@ namespace LSRutil
         public static byte[] GetElements(int theme)
         {
             return elementTable[theme];
+        }
+
+        public bool Equals(TrackElement element)
+        {
+            return (this.id, this.xid, this.pos, this.rotation, this.theme, this.mystery) ==
+                (element.id, element.xid, element.pos, element.rotation, element.theme, element.mystery);
         }
 
         /// <summary>

@@ -9,19 +9,32 @@
         public int Y;
         public int Z;
 
+        [System.Obsolete("Please use the Y property instead.")]
+        public int Height => Y;
+
         public GridPosition(int x, int y, int z)
         {
             X = x;
             Y = y;
             Z = z;
         }
-
+        
         public override bool Equals(object obj)
         {
             if(obj == null) return false;
             if(obj.GetType() != GetType()) return false;
             var arg = (GridPosition)obj;
             return X.Equals(arg.X) && Y.Equals(arg.Y) && Z.Equals(arg.Z);
+        }
+
+        public static bool operator ==(GridPosition lhs, GridPosition rhs)
+        {
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(GridPosition lhs, GridPosition rhs)
+        {
+            return !lhs.Equals(rhs);
         }
 
         public override int GetHashCode()

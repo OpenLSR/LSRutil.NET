@@ -163,7 +163,7 @@ namespace LSRutil
                 switch (compressionType)
                 {
                 case ResourceCompressionType.Store:
-                    fileBytes = data;
+                    // data is ready to use already.
                     break;
                 case ResourceCompressionType.Fast:
                     if (data.Length > 4)
