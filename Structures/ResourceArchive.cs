@@ -1,11 +1,29 @@
-﻿using Ionic.Zlib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace LSRutil
 {
+    /// <summary>
+    /// Compression types supported by <see cref="ResourceFile"/> data within <c>.rfd</c> archives.
+    /// </summary>
+    public enum ResourceCompressionType
+    {
+        /// <summary>
+        /// Data is stored as-is.
+        /// </summary>
+        Store = 0,
+        /// <summary>
+        /// Data is compressed using Huffman coding.
+        /// </summary>
+        Fast  = 1,
+        /// <summary>
+        /// Data is compressed using Zlib.
+        /// </summary>
+        Best  = 2,
+    }
+
     public class ResourceArchive
     {
         public List<ResourceFile> resources;
@@ -51,6 +69,18 @@ namespace LSRutil
         {
             var resFile = new ResourceFile();
             resFile.Pack(file, compress, path);
+            Add(resFile);
+        }
+
+        /// <summary>
+        /// Adds a file to the archive.
+        /// </summary>
+        /// <param name="file">The file to add.</param>
+        /// <param name="compressionType">Compression method to use for storing the file.</param>
+        public void Add(string file, ResourceCompressionType compressionType, string path="")
+        {
+            var resFile = new ResourceFile();
+            resFile.Pack(file, compressionType, path);
             Add(resFile);
         }
 
@@ -115,7 +145,7 @@ namespace LSRutil
     public class ResourceFile
     {
         public DateTime timestamp;
-        public int compressionType;
+        public ResourceCompressionType compressionType;
         public int compressedSize;
         public int offset;
         public string filepath;
@@ -125,27 +155,48 @@ namespace LSRutil
         {
             var dir = Directory.CreateDirectory(directory + (preserveStructure ? ("\\" + Path.GetDirectoryName(filepath) + "\\") : string.Empty));
             var location = dir.FullName + Path.GetFileName(filepath);
-            var stream = new FileStream(location, FileMode.Create);
-            var writer = new BinaryWriter(stream);
-            var fileBytes = data;
-            //Console.WriteLine("[RF] Extracting {0}...", filepath);
-            if (data.Length > 4)
+            using (var fileStream = new FileStream(location, FileMode.Create))
+            using (var fileWriter = new BinaryWriter(fileStream))
             {
-                if (compressionType != 0)
+                var fileBytes = data;
+                //Console.WriteLine("[RF] Extracting {0}...", filepath);
+                switch (compressionType)
                 {
-                    //Console.WriteLine("[RF] Decompressing {0}...", filepath);
-                    var array = new byte[data.Length - 4];
-                    Buffer.BlockCopy(data, 4, array, 0, data.Length - 4);
-                    fileBytes = ZlibStream.UncompressBuffer(array);
+                case ResourceCompressionType.Store:
+                    fileBytes = data;
+                    break;
+                case ResourceCompressionType.Fast:
+                    if (data.Length > 4)
+                    {
+                        //Console.WriteLine("[RF] Decompressing {0}...", filepath);
+                        fileBytes = RF.RfCompression.UncompressHuffman(data);
+                    }
+                    break;
+                case ResourceCompressionType.Best:
+                    if (data.Length > 4)
+                    {
+                        //Console.WriteLine("[RF] Decompressing {0}...", filepath);
+                        fileBytes = RF.RfCompression.UncompressZlib(data);
+                    }
+                    break;
+                default:
+                    throw new InvalidDataException("Unsupported compression type");
                 }
+
+                fileWriter.Write(fileBytes);
+                fileWriter.Close();
+                fileStream.Close();
+                File.SetLastWriteTime(location, timestamp);
             }
-            writer.Write(fileBytes);
-            writer.Close();
-            stream.Close();
-            File.SetLastWriteTime(location, timestamp);
         }
 
         public void Pack(string file, bool compress = false, string path = "")
+        {
+            ResourceCompressionType cmpType = (compress ? ResourceCompressionType.Best : ResourceCompressionType.Store);
+            Pack(file, cmpType, path);
+        }
+
+        public void Pack(string file, ResourceCompressionType cmpType, string path = "")
         {
             if (path == string.Empty) path = file;
             using (var fileStream = new FileStream(file, FileMode.Open))
@@ -159,12 +210,24 @@ namespace LSRutil
                 fileReader.Close();
                 fileStream.Close();
 
-                if(compress)
+                compressionType = cmpType;// (compress ? 2 : 0);
+
+                switch (compressionType)
                 {
-                    throw new NotImplementedException("Compression not implemented yet.");
-                    compressionType = 2;
-                    data = ZlibStream.CompressBuffer(data);
-                } else compressionType = 0;
+                case ResourceCompressionType.Store:
+                    // data is already in original format.
+                    break;
+                case ResourceCompressionType.Fast:
+                    //Console.WriteLine("[RF] Compressing {0}...", filepath);
+                    data = RF.RfCompression.CompressHuffman(data);
+                    break;
+                case ResourceCompressionType.Best:
+                    //Console.WriteLine("[RF] Compressing {0}...", filepath);
+                    data = RF.RfCompression.CompressZlib(data);
+                    break;
+                default:
+                    throw new InvalidDataException("Unsupported compression type");
+                }
 
                 compressedSize = data.Length;
                 timestamp = File.GetLastWriteTime(file);

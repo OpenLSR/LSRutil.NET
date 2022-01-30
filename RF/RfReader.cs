@@ -34,7 +34,7 @@ namespace LSRutil.RF
                 {
                     var pathLen = headerReader.ReadInt32();
                     var timestamp = DateTimeOffset.FromUnixTimeSeconds(headerReader.ReadUInt32()).DateTime;
-                    var cmpType = headerReader.ReadInt32();
+                    var cmpType = (ResourceCompressionType)headerReader.ReadInt32();
                     var cmpSize = headerReader.ReadInt32();
                     var offset = headerReader.ReadInt32();
                     var relPath = headerReader.ReadBytes(pathLen);
