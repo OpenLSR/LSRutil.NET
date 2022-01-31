@@ -5,6 +5,9 @@ using System.Text;
 
 namespace LSRutil.RTB
 {
+    /// <summary>
+    /// Class for reading RTB files.
+    /// </summary>
     public class RtbReader
     {
         private Stream stream;
@@ -24,9 +27,9 @@ namespace LSRutil.RTB
                 }
 
                 reader.BaseStream.Seek(12L, SeekOrigin.Begin);
-                int assetCount = reader.ReadInt32();
+                uint assetCount = reader.ReadUInt32();
 
-                for (int i = 0; i < 4; i++)
+                for (uint i = 0; i < 4; i++)
                 {
                     var dirBytes = reader.ReadBytes(260);
                     var dir = Encoding.ASCII.GetString(dirBytes);
@@ -34,11 +37,11 @@ namespace LSRutil.RTB
                     table.directories.Add(dir);
                 }
 
-                for (int i = 0; i < assetCount; i++)
+                for (uint i = 0; i < assetCount; i++)
                 {
-                    int assetId = reader.ReadUInt16();
+                    uint assetId = reader.ReadUInt32();
 
-                    reader.BaseStream.Seek(6L, SeekOrigin.Current); 
+                    reader.BaseStream.Seek(4L, SeekOrigin.Current); 
 
                     int offset = 1;
                     byte nchar = reader.ReadByte();
@@ -49,11 +52,11 @@ namespace LSRutil.RTB
                     }
 
                     reader.BaseStream.Seek(-(offset), SeekOrigin.Current);
-                    string path = Encoding.ASCII.GetString(reader.ReadBytes(offset));
+                    string path = Encoding.ASCII.GetString(reader.ReadBytes(offset-1));
 
                     table.Add(assetId, path);
 
-                    reader.BaseStream.Seek(3L, SeekOrigin.Current);
+                    reader.BaseStream.Seek(4L, SeekOrigin.Current);
                 }
             }
 

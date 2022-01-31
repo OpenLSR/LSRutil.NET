@@ -17,9 +17,13 @@ namespace ReadRTB
             }
             foreach (var item in table.contents)
             {
-                Console.WriteLine("[0x{0:X4}] {1}", item.Key, item.Value);
+                Console.WriteLine("[0x{0:X8}] {1}", item.Key, item.Value);
             }
             Console.WriteLine("{0} entries", table.contents.Count);
+            Console.WriteLine("First available slot: [0x{0:X8}]", table.GetFirstAvailableSlot());
+
+            var writer = new RtbWriter();
+            writer.WriteTable(table, "deeznuts.rtb");
         }
     }
 }

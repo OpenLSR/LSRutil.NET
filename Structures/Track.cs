@@ -106,10 +106,10 @@ namespace LSRutil
         public enum TrackTheme
         {
             Jungle = 0,
-            Ice = 1,
+            Arctic = 1,
+            Ice = 1, // alternate name
             Desert = 2,
             City = 3,
-            Arctic = 1
         }
 
         /// <summary>
@@ -158,16 +158,16 @@ namespace LSRutil
         public Dictionary<int, int> ext_metadata;
 
         /// <summary>
-        /// The non-normalized ID, as a byte straight from the file.
+        /// The asset ID, as an unsigned int straight from the file.
         /// </summary>
-        public byte id { get => _id; set => SetId(value); }
-        private byte _id;
+        public uint id { get => _id; set => SetId(value); }
+        private uint _id;
 
         /// <summary>
         /// The theme of the track element.
         /// </summary>
-        public Track.TrackTheme theme { get => _theme; set => SetTheme(value); }
-        private Track.TrackTheme _theme;
+        public Track.TrackTheme? theme { get => _theme; set => SetTheme(value); }
+        private Track.TrackTheme? _theme;
 
         /// <summary>
         /// The rotation of the track element.
@@ -180,9 +180,9 @@ namespace LSRutil
         public GridPosition pos;
 
         /// <summary>
-        /// An int, unknown purpose.
+        /// 4 bytes, unknown purpose. Possibly just garbage data.
         /// </summary>
-        public int mystery;
+        public byte[] mystery = new byte[4] {0,0,0,0};
 
         /// <summary>
         /// The origin of the track piece, determines what coordinate of the piece is the rotation axis
@@ -197,40 +197,36 @@ namespace LSRutil
         public int Z { set => pos.Z = value; get => pos.Z; }
 
         /// <summary>
-        /// The normalized ID, from 0 to 73.
+        /// The element ID index, from 0 to 72.
         /// </summary>
-        public int xid { get => _xid; set => SetId(value); }
-        private int _xid;
+        public uint? index { get => _index; set => SetIndex(value); }
+        private uint? _index;
 
         /// <summary>
         /// Instanciates a new track element with given arguments.
         /// </summary>
         /// <param name="id">The ID of the track element</param>
-        /// <param name="theme">The theme of the track element</param>
         /// <param name="rotation">The rotation of the track element</param>
         /// <param name="pos">The position of the track element</param>
-        public TrackElement(byte id, int theme, int rotation, GridPosition pos)
+        public TrackElement(uint id, int rotation, GridPosition pos)
         {
             this.id = id;
-            this.theme = (Track.TrackTheme)theme;
-            this.rotation = (TrackElement.TrackRotation)rotation;
+            this.rotation = (TrackRotation)rotation;
             this.pos = pos;
         }
 
         /// <summary>
         /// Instanciates a new track element with given arguments.
         /// </summary>
-        /// <param name="id">The ID of the track element</param>
+        /// <param name="index">The index of the track element</param>
         /// <param name="theme">The theme of the track element</param>
         /// <param name="rotation">The rotation of the track element</param>
         /// <param name="pos">The position of the track element</param>
-        [Obsolete("Deprecated, use GridPosition instead of Vector3.")]
-        public TrackElement(byte id, int theme, int rotation, Vector3 pos)
+        public TrackElement(uint index, Track.TrackTheme theme, int rotation, GridPosition pos)
         {
             this.id = id;
-            this.theme = (Track.TrackTheme)theme;
             this.rotation = (TrackRotation)rotation;
-            this.pos = new GridPosition((int)pos.X, (int)pos.Y, (int)pos.Z);
+            this.pos = pos;
         }
 
         /// <summary>
@@ -241,30 +237,55 @@ namespace LSRutil
             pos = new GridPosition();
         }
 
-        /// <summary>
-        /// Sets the normalized and non-normalized element ID at the same time.
-        /// </summary>
-        /// <param name="elementId">The non-normalized element ID</param>
-        public void SetId(byte elementId)
+        public void SetId(uint id)
         {
-            _id = elementId;
-            _xid = GetElementId(theme, _id);
+            _id = id;
+            if(theme != null)
+            {
+                for (uint i = 0; i < 73; i++)
+                {
+                    if (elementTable[(int)theme][i] == id)
+                    {
+                        _index = i;
+                        return;
+                    }
+                }
+            } 
+            else
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    for (uint i = 0; i < 73; i++)
+                    {
+                        if (elementTable[j][i] == id)
+                        {
+                            _theme = (Track.TrackTheme)j;
+                            _index = i;
+                            return;
+                        }
+                    }
+                }
+                _index = null;
+                return;
+            }
         }
 
-        /// <summary>
-        /// Sets the normalized and non-normalized element ID at the same time.
-        /// </summary>
-        /// <param name="xid">The normalized element ID</param>
-        public void SetId(int xid)
+        public void SetIndex(uint? index)
         {
-            _xid = xid;
-            _id = GetElementId(theme, _xid);
+            if(theme != null)
+            {
+                _id = elementTable[(int)theme][(int)index];
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot set index of a theme-less element");
+            }
         }
 
-        public void SetTheme(Track.TrackTheme theme)
+        public void SetTheme(Track.TrackTheme? theme)
         {
+            if(_index != null) _id = elementTable[(int)theme][(int)_index];
             _theme = theme;
-            if (_xid >= 0) SetId(_xid);
         }
 
         /// <summary>
@@ -273,21 +294,25 @@ namespace LSRutil
         public void GetInfo()
         {
             Console.WriteLine("### Element information ###");
-            Console.WriteLine("ID: 0x{0:X2}", _id);
-            Console.WriteLine("XID: {0}", _xid);
+            Console.WriteLine("Asset ID: 0x{0:X8}", _id);
+            Console.WriteLine("Index: {0}", _index);
             Console.WriteLine("Theme: {0}", theme);
-            Console.WriteLine("Rotation: {0} ({1})", rotation, (int)rotation);
+            Console.WriteLine("Rotation: {0} ({1})", rotation, (uint)rotation);
             Console.WriteLine("Position: {0}", pos);
         }
 
         /// <summary>
         /// A list of all possible bytes of track elements in LSR.
         /// </summary>
-        private static List<byte[]> elementTable = new List<byte[]> {
-            new byte[] { 0x65, 0x61, 0x62, 0x63, 0x64, 0x66, 0x67, 0x68, 0x69, 0x6B, 0x6C, 0x6F, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0x80, 0x81, 0x83, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x66, 0x97, 0x98, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0x00 },
-            new byte[] { 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4E, 0x4F, 0x50, 0x51, 0x53, 0x54, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6B, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7E, 0x7F, 0x80, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0x00 },
-            new byte[] { 0x1D, 0x19, 0x1A, 0x1B, 0x1C, 0x1E, 0x1F, 0x20, 0x21, 0x23, 0x24, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3B, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4E, 0x4F, 0x50, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x00 },
-            new byte[] { 0x30, 0x31, 0x32, 0x33, 0x34, 0x36, 0x37, 0x38, 0x39, 0x3B, 0x3C, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x53, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x66, 0x67, 0x68, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90 }
+        private static List<uint[]> elementTable = new List<uint[]> {
+            // Jungle
+            new uint[] { 0x3B65, 0x3B61, 0x3B62, 0x3B63, 0x3B64, 0x3B66, 0x3B67, 0x3B68, 0x3B69, 0x3B6B, 0x3B6C, 0x3B6F, 0x3B70, 0x3B71, 0x3B72, 0x3B73, 0x3B74, 0x3B75, 0x3B76, 0x3B77, 0x3B78, 0x3B79, 0x3B7A, 0x3B7B, 0x3B7C, 0x3B7D, 0x3B7E, 0x3B7F, 0x3B80, 0x3B81, 0x3B83, 0x3B88, 0x3B89, 0x3B8A, 0x3B8B, 0x3B8C, 0x3B8D, 0x3B8E, 0x3B8F, 0x3B90, 0x3B91, 0x3B92, 0x3B93, 0x3B94, 0x3B66, 0x3B97, 0x3B98, 0x3B9C, 0x3B9D, 0x3B9E, 0x3B9F, 0x3BA0, 0x3BA1, 0x3BA2, 0x3BA3, 0x3BA4, 0x3BA5, 0x3BA6, 0x3BA7, 0x3BA8, 0x3BA9, 0x3BAA, 0x3BAB, 0x3BAC, 0x3BAD, 0x3BAE, 0x3BAF, 0x3BBA, 0x3BBB, 0x3BBC, 0x3BBD, 0x3BBE, 0x3BBF },
+            // Arctic
+            new uint[] { 0x3F48, 0x3F49, 0x3F4A, 0x3F4B, 0x3F4C, 0x3F4E, 0x3F4F, 0x3F50, 0x3F51, 0x3F53, 0x3F54, 0x3F57, 0x3F58, 0x3F59, 0x3F5A, 0x3F5B, 0x3F5C, 0x3F5D, 0x3F5E, 0x3F5F, 0x3F60, 0x3F61, 0x3F62, 0x3F63, 0x3F64, 0x3F65, 0x3F66, 0x3F67, 0x3F68, 0x3F69, 0x3F6B, 0x3F70, 0x3F71, 0x3F72, 0x3F73, 0x3F74, 0x3F75, 0x3F76, 0x3F77, 0x3F78, 0x3F79, 0x3F7A, 0x3F7B, 0x3F7C, 0x3F7E, 0x3F7F, 0x3F80, 0x3F84, 0x3F85, 0x3F86, 0x3F87, 0x3F88, 0x3F89, 0x3F8A, 0x3F8B, 0x3F8C, 0x3F8D, 0x3F8E, 0x3F8F, 0x3F90, 0x3F91, 0x3F92, 0x3F93, 0x3F94, 0x3F95, 0x3F96, 0x3F97, 0x3FA2, 0x3FA3, 0x3FA4, 0x3FA5, 0x3FA6, 0x3FA7 },
+            // Desert
+            new uint[] { 0x471D, 0x4719, 0x471A, 0x471B, 0x471C, 0x471E, 0x471F, 0x4720, 0x4721, 0x4723, 0x4724, 0x4727, 0x4728, 0x4729, 0x472A, 0x472B, 0x472C, 0x472D, 0x472E, 0x472F, 0x4730, 0x4731, 0x4732, 0x4733, 0x4734, 0x4735, 0x4736, 0x4737, 0x4738, 0x4739, 0x473B, 0x4740, 0x4741, 0x4742, 0x4743, 0x4744, 0x4745, 0x4746, 0x4747, 0x4748, 0x4749, 0x474A, 0x474B, 0x474C, 0x474E, 0x474F, 0x4750, 0x4754, 0x4755, 0x4756, 0x4757, 0x4758, 0x4759, 0x475A, 0x475B, 0x475C, 0x475D, 0x475E, 0x475F, 0x4760, 0x4761, 0x4762, 0x4763, 0x4764, 0x4765, 0x4766, 0x4767, 0x4772, 0x4773, 0x4774, 0x4775, 0x4776, 0x4777 },
+            // City
+            new uint[] { 0x4330, 0x4331, 0x4332, 0x4333, 0x4334, 0x4336, 0x4337, 0x4338, 0x4339, 0x433B, 0x433C, 0x433F, 0x4340, 0x4341, 0x4342, 0x4343, 0x4344, 0x4345, 0x4346, 0x4347, 0x4348, 0x4349, 0x434A, 0x434B, 0x434C, 0x434D, 0x434E, 0x434F, 0x4350, 0x4351, 0x4353, 0x4358, 0x4359, 0x435A, 0x435B, 0x435C, 0x435D, 0x435E, 0x435F, 0x4360, 0x4361, 0x4362, 0x4363, 0x4364, 0x4366, 0x4367, 0x4368, 0x436C, 0x436D, 0x436E, 0x436F, 0x4370, 0x4371, 0x4372, 0x4373, 0x4374, 0x4375, 0x4376, 0x4377, 0x4378, 0x4379, 0x437A, 0x437B, 0x437C, 0x437D, 0x437E, 0x437F, 0x438A, 0x438B, 0x438C, 0x438D, 0x438E, 0x438F }
         };
 
         private static List<TrackOrigin> elementOrigins = new List<TrackOrigin> {
@@ -369,41 +394,19 @@ namespace LSRutil
         };
 
         /// <summary>
-        /// Converts normalized element ID to non-normalized element ID.
-        /// </summary>
-        /// <param name="theme">The theme of the requested element</param>
-        /// <param name="xid">The normalized element ID</param>
-        /// <returns>The non-normalized element ID</returns>
-        public static byte GetElementId(Track.TrackTheme theme, int xid)
-        {
-            return elementTable[(int)theme][xid];
-        }
-
-        /// <summary>
-        /// Converts non-normalized element ID to normalized element ID.
-        /// </summary>
-        /// <param name="theme">The theme of the requested element</param>
-        /// <param name="id">The non-normalized element ID</param>
-        /// <returns>The normalized element ID</returns>
-        public static int GetElementId(Track.TrackTheme theme, byte id)
-        {
-            return Array.IndexOf(elementTable[(int)theme], id);
-        }
-
-        /// <summary>
         /// Returns all of the elements in the element table for a specific theme.
         /// </summary>
         /// <param name="theme">The theme of the returned elements</param>
         /// <returns>A byte array of all of the elements</returns>
-        public static byte[] GetElements(int theme)
+        public static uint[] GetElements(int theme)
         {
             return elementTable[theme];
         }
 
         public bool Equals(TrackElement element)
         {
-            return (this.id, this.xid, this.pos, this.rotation, this.theme, this.mystery) ==
-                (element.id, element.xid, element.pos, element.rotation, element.theme, element.mystery);
+            return (this.id, this.index, this.pos, this.rotation, this.theme, this.mystery) ==
+                (element.id, element.index, element.pos, element.rotation, element.theme, element.mystery);
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace WriteTrack
 
             track.Add(new TrackElement() {
                 theme = track.theme, // theme is set first, because that's important for the ID.
-                xid = 0,
+                index = 0,
                 rotation = 0,
                 pos = new GridPosition(0,0,0)
             });

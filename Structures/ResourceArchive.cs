@@ -27,7 +27,7 @@ namespace LSRutil
     public class ResourceArchive
     {
         public List<ResourceFile> resources;
-        public int nextOffset;
+        public uint nextOffset;
 
         /// <summary>
         /// Instanciates a new ResourceArchive based on a List of ResourceFiles.
@@ -146,8 +146,8 @@ namespace LSRutil
     {
         public DateTime timestamp;
         public ResourceCompressionType compressionType;
-        public int compressedSize;
-        public int offset;
+        public uint compressedSize;
+        public uint offset;
         public string filepath;
         public byte[] data;
 
@@ -210,7 +210,7 @@ namespace LSRutil
                 fileReader.Close();
                 fileStream.Close();
 
-                compressionType = cmpType;// (compress ? 2 : 0);
+                compressionType = cmpType;
 
                 switch (compressionType)
                 {
@@ -229,7 +229,7 @@ namespace LSRutil
                     throw new InvalidDataException("Unsupported compression type");
                 }
 
-                compressedSize = data.Length;
+                compressedSize = (uint)data.Length;
                 timestamp = File.GetLastWriteTime(file);
             }
         }

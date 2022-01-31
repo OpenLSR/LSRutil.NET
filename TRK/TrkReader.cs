@@ -22,54 +22,13 @@ namespace LSRutil.TRK
         }
 
         /// <summary>
-        /// Reads an integer from the stream.
-        /// </summary>
-        /// <returns>The integer</returns>
-        private int ReadInt()
-        {
-            var data = reader.ReadBytes(4);
-            return BitConverter.ToInt32(data, 0);
-        }
-
-        /// <summary>
-        /// Reads a float from the stream.
-        /// </summary>
-        /// <returns>The float</returns>
-        private float ReadFloat()
-        {
-            var data = reader.ReadBytes(4);
-            return BitConverter.ToSingle(data, 0);
-        }
-
-        /// <summary>
         /// Reads a track height from the stream.
         /// </summary>
         /// <returns>The track height</returns>
         private int ReadHeight()
         {
-            var height = (int)ReadFloat();
+            var height = (int)reader.ReadSingle();
             return height == -1 ? 0 : Math.Min(height/8, 3);
-        }
-
-        /// <summary>
-        /// Reads a track element theme from the stream.
-        /// </summary>
-        /// <returns>The track element theme</returns>
-        private Track.TrackTheme ReadElementTheme()
-        {
-            int data = reader.ReadByte();
-            Track.TrackTheme theme;
-
-            switch (data)
-            {
-                case 0x3B: theme = Track.TrackTheme.Jungle; break;
-                case 0x3F: theme = Track.TrackTheme.Ice;    break;
-                case 0x47: theme = Track.TrackTheme.Desert; break;
-                case 0x43: theme = Track.TrackTheme.City;   break;
-                default:   theme = Track.TrackTheme.City;   break;
-            }
-
-            return theme;
         }
 
         /// <summary>
@@ -90,15 +49,15 @@ namespace LSRutil.TRK
                 if (realFilesize < 20) throw new InvalidDataException("Incorrect filesize, corrupted track!");
 
                 var legoHeader = ReadString(12);
-                var trkVersion = ReadInt();
-                var claimedFilesize = ReadInt();
+                var trkVersion = reader.ReadUInt32();
+                var claimedFilesize = reader.ReadUInt32();
 
                 if (claimedFilesize != 65576) throw new InvalidDataException("TRK file reports incorrect filesize!");
                 if (claimedFilesize != realFilesize) throw new InvalidDataException("Incorrect filesize, corrupted track!");
 
-                track.size = (Track.TrackSize)ReadInt();
-                track.theme = (Track.TrackTheme)ReadInt();
-                track.time = (Track.TrackTime)ReadInt();
+                track.size = (Track.TrackSize)reader.ReadUInt32();
+                track.theme = (Track.TrackTheme)reader.ReadUInt32();
+                track.time = (Track.TrackTime)reader.ReadUInt32();
 
 
                 var iters = 8 * ((int)track.size + 1);
@@ -110,15 +69,11 @@ namespace LSRutil.TRK
                     {
                         var element = new TrackElement();
 
-                        element.mystery = ReadInt();
-                        var height = ReadHeight();
-                        var id = reader.ReadByte();
-                        element.theme = ReadElementTheme();
-                        element.SetId(id);
-                        stream.Seek(2, SeekOrigin.Current);
-                        element.rotation = (TrackElement.TrackRotation)reader.ReadByte();
-                        stream.Seek(3, SeekOrigin.Current);
-                        element.pos = new GridPosition(x, height, z);
+                        element.mystery = reader.ReadBytes(4);
+                        element.pos = new GridPosition(x, ReadHeight(), z);
+                        element.SetId(reader.ReadUInt32());
+                        element.rotation = (TrackElement.TrackRotation)reader.ReadUInt32();
+                        
 
                         track.Add(element);
                     }
@@ -126,7 +81,7 @@ namespace LSRutil.TRK
                 }
 
                 stream.Seek(65572, SeekOrigin.Begin);
-                track.playable = ReadInt() == 1;
+                track.playable = reader.ReadUInt32() == 1;
             }
 
             return track;

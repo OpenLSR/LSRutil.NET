@@ -68,8 +68,8 @@ namespace ReadTrack
 
             foreach (var element in elements)
             {
-                if(element.id != 255)
-                    if(element.xid < 38)
+                if(element.id != uint.MaxValue)
+                    if(element.index < 38)
                         SetVis(element.X, element.Z, '#'); // track element (probably)
                     else
                         SetVis(element.X, element.Z, '*'); // scenery element (probably)

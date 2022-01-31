@@ -26,8 +26,11 @@ Check out all of the [examples](Examples/)!
 |AI Data (.bin, .txt)|✔️|✔️|
 |AI Cornering Data (.dat, .txt)|✔️|✔️|
 |Moto Video (.mvd)|✔️|✔️|
-|Resource Archive Files (.rfh/.rfd)|✔️|[⚠](# "Compression for written archives is not yet supported.")|
-|Resource Table (.rtb)|✔️|❌|
+|Resource Archive Files (.rfh/.rfd)|✔️|✔️|
+|Resource Table (.rtb)|✔️|✔️|
+|Metadata File (.mdf)|❌|❌|
+|??? (.mfd)|❌|❌|
+|??? (.mdd)|❌|❌|
 |Xanadu Binary Format (.xbf)|[⚠](# "Preliminary support.")|❌|
 
 

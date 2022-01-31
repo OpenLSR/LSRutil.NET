@@ -21,7 +21,7 @@ namespace LSRutil.TRK
         /// <remarks>
         /// <para>Anything other than 5 causes a standardized implementation to crash.</para>
         /// </remarks>
-        private const int trkVersion = 5;
+        private const uint trkVersion = 5;
 
         /// <summary>
         /// The total filesize of the TRK file in bytes.
@@ -30,7 +30,7 @@ namespace LSRutil.TRK
         /// <para>If the header has an incorrect filesize, standardized implementations will crash.</para>
         /// <para>If the file is not exactly 65,576 bytes long, standardized implementations will ignore it.</para>
         /// </remarks>
-        private const int filesize = 65576;
+        private const uint filesize = 65576;
 
         /// <summary>
         /// The fixed padding bytes used in the TRK format between regions of elements.
@@ -52,44 +52,15 @@ namespace LSRutil.TRK
         }
 
         /// <summary>
-        /// Writes an int to the stream.
-        /// </summary>
-        /// <param name="data">The int to write</param>
-        private void WriteData(int data)
-        {
-            writer.Write(BitConverter.GetBytes(data));
-        }
-
-        /// <summary>
-        /// Writes a float to the stream.
-        /// </summary>
-        /// <param name="data">The float to write</param>
-        private void WriteData(float data)
-        {
-            writer.Write(BitConverter.GetBytes(data));
-        }
-
-        /// <summary>
-        /// Writes a byte to the stream.
-        /// </summary>
-        /// <param name="data">The byte to write</param>
-        private void WriteByte(byte data)
-        {
-            writer.Write(data);
-        }
-
-        /// <summary>
         /// Serializes a track element and writes it to the stream.
         /// </summary>
         /// <param name="element">The track element to serialize</param>
         private void WriteElement(TrackElement element)
         {
-            WriteData(element.mystery);
-            WriteData(GetHeight(element.Y));
-            WriteByte(element.id);
-            WriteByte(GetElementTheme(element.theme));
-            writer.Write(new byte[] {0,0}); // more padding
-            WriteData((int)element.rotation);
+            writer.Write(element.mystery);
+            writer.Write(GetHeight(element.Y));
+            writer.Write(element.id);
+            writer.Write((uint)element.rotation);
         }
 
         /// <summary>
@@ -162,12 +133,12 @@ namespace LSRutil.TRK
                     // There is an element at these coordinates
                     if (element != null)
                     {
-                        if (element.xid != -1) WriteElement(element);
+                        if (element.index != -1) WriteElement(element);
                         // Height block
-                        else if (element.xid == -1 && element.Y > 0)
+                        else if (element.index == -1 && element.Y > 0)
                         {
                             element.Y -= 1;
-                            element.xid = 69;
+                            element.index = 69;
                             WriteElement(element);
                         }
                     }
@@ -195,11 +166,11 @@ namespace LSRutil.TRK
             using (writer = new BinaryWriter(this.stream))
             {
                 WriteString(legoHeader);
-                WriteData(trkVersion);
-                WriteData(filesize);
-                WriteData((int)track.size);
-                WriteData((int)track.theme);
-                WriteData((int)track.time);
+                writer.Write(trkVersion);
+                writer.Write(filesize);
+                writer.Write((uint)track.size);
+                writer.Write((uint)track.theme);
+                writer.Write((uint)track.time);
                 var elementsWritten = WriteTrackElements(track);
                 if (elementsWritten != correctLength) {
                     writer.Dispose();
@@ -213,7 +184,7 @@ namespace LSRutil.TRK
                 }
 
                 writer.Seek(65572, SeekOrigin.Begin);
-                WriteData(track.playable?1:0);
+                writer.Write(track.playable?1:0);
                 //Console.WriteLine("Wrote {0} bytes.", writer.BaseStream.Position);
             }
         }

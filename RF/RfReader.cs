@@ -32,14 +32,14 @@ namespace LSRutil.RF
             {
                 do
                 {
-                    var pathLen = headerReader.ReadInt32();
+                    var pathLen = headerReader.ReadUInt32();
                     var timestamp = DateTimeOffset.FromUnixTimeSeconds(headerReader.ReadUInt32()).DateTime;
-                    var cmpType = (ResourceCompressionType)headerReader.ReadInt32();
-                    var cmpSize = headerReader.ReadInt32();
-                    var offset = headerReader.ReadInt32();
-                    var relPath = headerReader.ReadBytes(pathLen);
+                    var cmpType = (ResourceCompressionType)headerReader.ReadUInt32();
+                    var cmpSize = headerReader.ReadUInt32();
+                    var offset = headerReader.ReadUInt32();
+                    var relPath = headerReader.ReadBytes((int)pathLen);
                     dataReader.BaseStream.Seek(offset, SeekOrigin.Begin);
-                    var data = dataReader.ReadBytes(cmpSize);
+                    var data = dataReader.ReadBytes((int)cmpSize);
                     archive.resources.Add(new ResourceFile
                     {
                         filepath = Encoding.ASCII.GetString(relPath).Trim('\0'), // Null terminated strings aren't a thing in C#.
