@@ -23,7 +23,7 @@ namespace LSRutil.AI
         
         public void Load(string filename)
         {
-            using var reader = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read));
+            var reader = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read));
             reader.ReadBytes(4);
             RacingLine = reader.ReadUInt16();
             Braking = reader.ReadUInt16();
@@ -39,7 +39,7 @@ namespace LSRutil.AI
 
         public void Save(string filename)
         {
-            using var writer = new BinaryWriter(File.Open(filename, FileMode.Create));
+            var writer = new BinaryWriter(File.Open(filename, FileMode.Create));
             writer.Write(new byte[] { 0, 0, 0, 0 });
             writer.Write(RacingLine);
             writer.Write(Braking);

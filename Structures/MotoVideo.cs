@@ -113,7 +113,7 @@ namespace LSRutil
 
         public void DumpFrame(string filename = "dumpedFrame.rgb565.raw")
         {
-            using var writer = new BinaryWriter(File.Open(filename, FileMode.Create));
+            var writer = new BinaryWriter(File.Open(filename, FileMode.Create));
             writer.Write(bytes);
         }
     }

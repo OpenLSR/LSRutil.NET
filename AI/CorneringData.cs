@@ -20,7 +20,7 @@ namespace LSRutil.AI
         
         public void Load(string filename)
         {
-            using var reader = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read));
+            var reader = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read));
             Small = reader.ReadSingle();
             Big = reader.ReadSingle();
             SmallSmall_Same = reader.ReadSingle();
@@ -35,7 +35,7 @@ namespace LSRutil.AI
 
         public void Save(string filename)
         {
-            using var writer = new BinaryWriter(File.Open(filename, FileMode.Create));
+            var writer = new BinaryWriter(File.Open(filename, FileMode.Create));
             writer.Write(Small);
             writer.Write(Big);
             writer.Write(SmallSmall_Same);
