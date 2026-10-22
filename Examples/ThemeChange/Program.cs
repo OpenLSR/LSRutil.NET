@@ -6,7 +6,7 @@ namespace ThemeChange
     class Program
     {
         static string filename = @"C:\LSR\SavedTracks\height.trk";
-        static Track.TrackTheme theme = Track.TrackTheme.Ice;
+        static Track.TrackTheme theme = Track.TrackTheme.Arctic;
 
         static void ChangeTheme(TrackElement element)
         {

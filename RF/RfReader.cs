@@ -13,6 +13,8 @@ namespace LSRutil.RF
         private BinaryReader headerReader;
         private Stream dataStream;
         private BinaryReader dataReader;
+        
+        private Encoding encoding;
 
         /// <summary>
         /// Loads the archive from a header and data stream with specified filename.
@@ -20,10 +22,11 @@ namespace LSRutil.RF
         /// <param name="headerStream">The stream from the RFH file.</param>
         /// <param name="dataStream">The stream from the RFD file.</param>
         /// <returns>A <see cref="ResourceArchive"/> with the loaded streams' data.</returns>
-        public ResourceArchive ReadArchive(Stream headerStream, Stream dataStream)
+        public ResourceArchive ReadArchive(Stream headerStream, Stream dataStream, Encoding encoding = null)
         {
             this.headerStream = headerStream;
             this.dataStream = dataStream;
+            this.encoding = encoding ?? Encoding.GetEncoding(1252);
 
             var archive = new ResourceArchive();
             
@@ -40,9 +43,10 @@ namespace LSRutil.RF
                     var relPath = headerReader.ReadBytes((int)pathLen);
                     dataReader.BaseStream.Seek(offset, SeekOrigin.Begin);
                     var data = dataReader.ReadBytes((int)cmpSize);
+                    
                     archive.resources.Add(new ResourceFile
                     {
-                        filepath = Encoding.ASCII.GetString(relPath).Trim('\0'), // Null terminated strings aren't a thing in C#.
+                        filepath = this.encoding.GetString(relPath).Trim('\0'), // Null terminated strings aren't a thing in C#.
                         timestamp = timestamp,
                         compressionType = cmpType,
                         compressedSize = cmpSize,
@@ -65,10 +69,10 @@ namespace LSRutil.RF
         /// <returns>A <see cref="ResourceArchive"/> with the loaded files' data.</returns>
         public ResourceArchive ReadArchive(string file)
         {
-            var fileExt = Path.GetExtension(file).ToLower();
-            if(fileExt==".rfh"||fileExt==".rfd") file = Path.ChangeExtension(file, null);
-            headerStream = new FileStream(file+".rfh", FileMode.Open);
-            dataStream = new FileStream(file+".rfd", FileMode.Open);
+            var fileExt = Path.GetExtension(file).ToUpper();
+            if(fileExt==".RFH"||fileExt==".RFD") file = Path.ChangeExtension(file, null);
+            headerStream = new FileStream(file+".RFH", FileMode.Open);
+            dataStream = new FileStream(file+".RFD", FileMode.Open);
 
             return ReadArchive(headerStream, dataStream);
         }

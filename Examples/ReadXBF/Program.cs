@@ -9,7 +9,12 @@ namespace ReadXBF
         static void Main(string[] args)
         {
             var reader = new XbfReader();
-            reader.ReadModel(@"D:\_CODE\C#\LSRutil.NET\Examples\ReadRF\bin\Debug\netcoreapp3.1\extract-old\worlds\city\ctrack\ctchican\ctchican.xbf");
+            //reader.ReadModel("../../../../ReadRF/bin/Debug/net6.0/extract-art/worlds/city/ctrack/ctchican/ctchican.xbf");
+            //reader.ReadModel("O:\\LEGOSR\\art\\worlds\\city\\cskirts\\ck16pc\\ck16pc.XBF");
+            reader.ReadModel("C:\\bruh\\CITY0001\\ctrack\\cccrusher\\cccrusher.xbf");
+            //reader.ReadModel("O:\\LEGOSR\\art\\worlds\\ice\\iskirts\\ik16pc\\ik16pc.XBF");
+            //reader.ReadModel("O:\\LEGOSR\\art\\worlds\\ice\\iscene\\isradar\\isradar.XBF"); 
+            reader.WriteGltf();
         }
     }
 }

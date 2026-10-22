@@ -1,9 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using System.Text;
+using System.Xml;
 
-// I fucking hate this code, this code is garbage, why doesn't this work. -Y 12/05/2020
+#if !NETFRAMEWORK
+using SharpGLTF.Geometry;
+using SharpGLTF.Geometry.VertexTypes;
+using SharpGLTF.Materials;
+using SharpGLTF.Memory;
+using SharpGLTF.Scenes;
+using SharpGLTF.Schema2;
+using SharpGLTF.Transforms;
+#endif
 
 namespace LSRutil.XBF
 {
@@ -11,42 +23,28 @@ namespace LSRutil.XBF
     {
         private Stream stream;
         private BinaryReader reader;
+        
+        private XbfModel model;
 
-        private byte[] fileData;
-
-        private List<string> textures = new List<string>();
-
-        private int unknownInt;
-
-        public void ReadModel(Stream stream)
+        public void ReadModel(Stream stream, String name)
         {
             this.stream = stream;
-            this.reader = new BinaryReader(stream);
+            reader = new BinaryReader(stream);
             
-            this.unknownInt = reader.ReadInt32();
-            ColoredConsole.WriteLineDebug("{0:x8} Version? {1:x8}", new object[]
-            {
-            reader.BaseStream.Position,
-            this.unknownInt
-            });
-            this.unknownInt = reader.ReadInt32();
-            ColoredConsole.WriteLineDebug("{0:x8} UnknownInt {1:x8}", new object[]
-            {
-            reader.BaseStream.Position,
-            this.unknownInt
-            });
+            model = new XbfModel(name);
+            
+            int version = reader.ReadInt32();
+            ColoredConsole.WriteLineDebug("{0:x8} Version? {1:x8}", reader.BaseStream.Position, version);
+            
+            int unknownInt = reader.ReadInt32();
+            ColoredConsole.WriteLineDebug("{0:x8} UnknownInt {1:x8}", reader.BaseStream.Position, unknownInt);
+            
             int num = reader.ReadInt32();
-            ColoredConsole.WriteLineInfo("{0:x8} SizeOfTextureNames {1:x8}", new object[]
-            {
-            reader.BaseStream.Position,
-            num
-            });
+            ColoredConsole.WriteLineInfo("{0:x8} SizeOfTextureNames {1:x8}", reader.BaseStream.Position, num);
+            
             for (int i = 0; i < num; i += 2)
             {
-                ColoredConsole.WriteDebug("{0:x8} ", new object[]
-                {
-                    reader.BaseStream.Position
-                });
+                ColoredConsole.WriteDebug("{0:x8} ", reader.BaseStream.Position);
                 List<byte> list = new List<byte>();
                 byte nchar = reader.ReadByte();
                 while (nchar != 0x00) // Seperator
@@ -55,21 +53,27 @@ namespace LSRutil.XBF
                     nchar = reader.ReadByte();
                     i++;
                 }
-                ColoredConsole.WriteLineDebug("{0}", new object[]
-                {
-                Encoding.ASCII.GetString(list.ToArray())
-                });
-                this.textures.Add(Encoding.ASCII.GetString(list.ToArray()));
-                reader.BaseStream.Seek(2L, SeekOrigin.Current);
+                ColoredConsole.WriteLineDebug("{0}", Encoding.ASCII.GetString(list.ToArray()));
+                model.Materials.Add(Encoding.ASCII.GetString(list.ToArray()));
+                reader.BaseStream.Seek(1L, SeekOrigin.Current);
             }
             
-            Mesh mesh = this.ReadMesh(true, " ");
+            while (reader.BaseStream.Position != reader.BaseStream.Length)
+            {
+                int verts = reader.ReadInt32();
+                if(verts == -1) break;
+                reader.BaseStream.Seek(-4L, SeekOrigin.Current);
+                
+                model.Objects.Add(ReadObject(true, " "));
+            }
         }
 
         public void ReadModel(string filename)
         {
+            Console.WriteLine("Reading file {0}", filename);
             stream = File.Open(filename, FileMode.Open, FileAccess.Read);
-            ReadModel(stream);
+            ReadModel(stream, Path.GetFileNameWithoutExtension(filename));
+            //WriteObj(model.Objects[0]);
         }
 
         /*
@@ -122,283 +126,313 @@ namespace LSRutil.XBF
             this.WriteObj(mesh);
         }*/
 
-        private Mesh ReadMesh(bool isMain, string prefix)
+        private XbfObject ReadObject(bool isMain, string prefix)
         {
-            Mesh mesh = new Mesh();
-            int num = reader.ReadInt32();
-            ColoredConsole.WriteLineInfo("{0:x8} {1} NumberOfVertices {2:x8}", new object[]
-            {
-                reader.BaseStream.Position,
-                prefix,
-                num
-            });
-            this.unknownInt = reader.ReadInt32();
-            ColoredConsole.WriteLineDebug("{0:x8} {1} UnknownInt {2:x8}", new object[]
-            {
-                reader.BaseStream.Position,
-                prefix,
-                this.unknownInt
-            });
-            int num2 = reader.ReadInt32();
-            ColoredConsole.WriteLineInfo("{0:x8} {1} NumberOfIndices {2:x8}", new object[]
-            {
-                reader.BaseStream.Position,
-                prefix,
-                num2
-            });
-            int num3 = reader.ReadInt32();
-            ColoredConsole.WriteLineInfo("{0:x8} {1} NumberOfSubMeshes {2:x8}", new object[]
-            {
-                reader.BaseStream.Position,
-                prefix,
-                num3
-            });
-            reader.BaseStream.Seek(128L, SeekOrigin.Current);
-            int num4 = reader.ReadInt32();
-            ColoredConsole.WriteLineDebug("{0:x8} {1} MeshNameLength {2:x8}", new object[]
-            {
-                reader.BaseStream.Position,
-                prefix,
-                num4
-            });
+            XbfObject obj = new XbfObject();
+            
+            int numVerts = reader.ReadInt32();
+            ColoredConsole.WriteLineInfo("{0:x8} {1} NumberOfVertices {2:x8}", reader.BaseStream.Position, prefix, numVerts);
+            
+            int unknownInt = reader.ReadInt32();
+            ColoredConsole.WriteLineDebug("{0:x8} {1} UnknownInt {2:x8}", reader.BaseStream.Position, prefix, unknownInt);
+            
+            int numFaces = reader.ReadInt32();
+            ColoredConsole.WriteLineInfo("{0:x8} {1} NumberOfFaces {2:x8}", reader.BaseStream.Position, prefix, numFaces);
+            
+            int numSubMesh = reader.ReadInt32();
+            ColoredConsole.WriteLineInfo("{0:x8} {1} NumberOfSubMeshes {2:x8}", reader.BaseStream.Position, prefix, numSubMesh);
+            
+            // the matrix is stored as double-precision,
+            // but System.Numerics only supports single-precision,
+            // so for .NET Framework we have to cast to floats.
+            
+            #if !NETFRAMEWORK
+            obj.Matrix = new Matrix4x4Double(
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(), 
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble(),
+                reader.ReadDouble()
+            );
+            #else
+            obj.Matrix = new Matrix4x4(
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble(),
+                (float)reader.ReadDouble()
+            );
+            #endif
+            
+            ColoredConsole.WriteLineDebug("{0:x8} {1} ObjectMatrix {2}", reader.BaseStream.Position, prefix, (Matrix4x4)obj.Matrix);
+            
+            int objNameLen = reader.ReadInt32();
+            ColoredConsole.WriteLineDebug("{0:x8} {1} ObjectNameLength {2:x8}", reader.BaseStream.Position, prefix, objNameLen);
             
             List<byte> list = new List<byte>();
-            ColoredConsole.WriteDebug("{0:x8} {1} ", new object[]
-            {
-                reader.BaseStream.Position,
-                prefix
-            });
-            for (int i = 0; i < num4; i++)
+            ColoredConsole.WriteDebug("{0:x8} {1} ", reader.BaseStream.Position, prefix);
+            for (int i = 0; i < objNameLen; i++)
             {
                 byte nchar = reader.ReadByte();
                 if (nchar != 0x00) // Seperator
                 {
                     list.Add(nchar);
-                    nchar = reader.ReadByte();
                 }
             }
-            ColoredConsole.WriteLineWarn("MeshName: {0}", new object[]
+            ColoredConsole.WriteLineWarn("ObjectName: {0}", Encoding.ASCII.GetString(list.ToArray()));
+            obj.Name = Encoding.ASCII.GetString(list.ToArray());
+
+            for (int i = 0; i < numSubMesh; i++)
             {
-                Encoding.ASCII.GetString(list.ToArray())
-            });
-            mesh.Name = Encoding.ASCII.GetString(list.ToArray());
+                obj.Children.Add(ReadObject(false, prefix + "  "));
+            }
+            
+            // mesh things
+            
+            obj.Mesh = new Mesh();
+            
+            // further research required
             /*
-            for (int i = 0; i < num3; i++)
+            for (int i = 0; i < numSubMesh; i++)
             {
-                mesh.SubMeshes.Add(this.ReadMesh(false, prefix + "  "));
+                obj.Mesh.SubMeshes.Add(ReadObject(false, prefix + "  "));
             }
-            ColoredConsole.WriteLineInfo("{0:x8} {1} ReadVertices", new object[]
+            */
+            
+            ColoredConsole.WriteLineInfo("{0:x8} {1} ReadVertices", reader.BaseStream.Position, prefix);
+            for (int i = 0; i < numVerts; i++)
             {
-                this.pos,
-                prefix
-            });
-            for (int i = 0; i < num; i++)
-            {
-                float num5 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float num6 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float num7 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float num8 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float num9 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float num10 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                mesh.Vectors.Add(new Vector3D((double)num5, (double)num6, (double)num7));
-                mesh.Normals.Add(new Vector3D((double)num8, (double)num9, (double)num10));
+                obj.Mesh.Vectors.Add(new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
+                obj.Mesh.Normals.Add(new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
             }
-            ColoredConsole.WriteLineInfo("{0:x8} {1} ReadIndices", new object[]
+            
+            ColoredConsole.WriteLineInfo("{0:x8} {1} ReadFaces", reader.BaseStream.Position, prefix);
+            for (int i = 0; i < numFaces; i++)
             {
-                this.pos,
-                prefix
-            });
-            for (int i = 0; i < num2; i++)
-            {
-                int a = BitConverter.ToInt32(this.fileData, this.pos);
-                this.pos += 4;
-                int b = BitConverter.ToInt32(this.fileData, this.pos);
-                this.pos += 4;
-                int c = BitConverter.ToInt32(this.fileData, this.pos);
-                this.pos += 4;
-                int textureId = BitConverter.ToInt32(this.fileData, this.pos);
-                this.pos += 4;
-                int e = BitConverter.ToInt32(this.fileData, this.pos);
-                this.pos += 4;
-                float x = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float y = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                mesh.UVs.Add(new Vector2D(x, y));
-                float x2 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float y2 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                mesh.UVs.Add(new Vector2D(x2, y2));
-                float x3 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                float y3 = BitConverter.ToSingle(this.fileData, this.pos);
-                this.pos += 4;
-                mesh.UVs.Add(new Vector2D(x3, y3));
-                mesh.Triangles.Add(new Triangle(a, b, c, textureId, e, mesh.UVs.Count - 3, mesh.UVs.Count - 2, mesh.UVs.Count - 1));
+                
+                int a = reader.ReadInt32();
+                int b = reader.ReadInt32();
+                int c = reader.ReadInt32();
+                
+                int textureId = reader.ReadInt32();
+                
+                int e = reader.ReadInt32();
+                
+                Vector2 uv_a = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                Vector2 uv_b = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                Vector2 uv_c = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+                
+                obj.Mesh.Triangles.Add(new Triangle(a, b, c, textureId, e, uv_a, uv_b, uv_c));
             }
-            for (int i = 0; i < num2; i++)
+            ColoredConsole.WriteLineInfo("{0:x8} {1} ReadSmoothingGroups", reader.BaseStream.Position, prefix);
+            for (int i = 0; i < numFaces; i++)
             {
-                this.pos += 4;
+                obj.Mesh.Triangles[i].SmoothingGroup = reader.ReadInt32();
             }
-            if (!isMain && num > 0)
+
+            //if (isMain) return obj;
+
+            if ((unknownInt & 8) != 0)
             {
-                int num11 = BitConverter.ToInt32(this.fileData, this.pos);
-                ColoredConsole.WriteLineError("{0:x8} {1} NumberOfFrames {2:x8}", new object[]
+                int frameCount = reader.ReadInt32();
+                ColoredConsole.WriteLineError("{0:x8} {1} FrameCount {2:x8}", reader.BaseStream.Position - 4,
+                    prefix, frameCount);
+
+                // this logic needs to change
+                if (frameCount != 0)
                 {
-                    this.pos,
-                    prefix,
-                    num11
-                });
-                this.pos += 4;
-                if (num11 != 0)
-                {
-                    int num12 = BitConverter.ToInt32(this.fileData, this.pos);
-                    ColoredConsole.WriteLineError("{0:x8} {1} NumberOfPoints {2:x8}", new object[]
+                    int numKeys = reader.ReadInt32();
+                    ColoredConsole.WriteLineError("{0:x8} {1} NumberOfKeys {2:x8}", reader.BaseStream.Position - 4,
+                        prefix, numKeys);
+
+                    for (int i = 0; i < numKeys; i++)
                     {
-                        this.pos,
-                        prefix,
-                        num12
-                    });
-                    this.pos += 4;
-                    for (int i = 0; i < num12; i++)
-                    {
-                        short num13 = BitConverter.ToInt16(this.fileData, this.pos);
-                        this.pos += 2;
-                        short num14 = BitConverter.ToInt16(this.fileData, this.pos);
-                        this.pos += 2;
-                        ColoredConsole.WriteLineWarn("{0:x8} {1} Frame {2:x4} Type {3:x4}", new object[]
+                        short frameIdx = reader.ReadInt16();
+                        short frameType = reader.ReadInt16();
+                        ColoredConsole.WriteLineWarn("{0:x8} {1} Frame {2:x4} Type {3:x4}", reader.BaseStream.Position,
+                            prefix, frameIdx, frameType);
+
+                        if ((frameType & 4096) == 4096)
                         {
-                            this.pos,
-                            prefix,
-                            num13,
-                            num14
-                        });
-                        if ((num14 & 4096) == 4096)
-                        {
-                            float num15 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num16 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num17 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num18 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            ColoredConsole.WriteLineDebug("{0:x8} {1}   Rotation: {2} {3} {4} {5}", new object[]
-                            {
-                                this.pos,
-                                prefix,
-                                num15,
-                                num16,
-                                num17,
-                                num18
-                            });
+                            Quaternion rot = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
+                            ColoredConsole.WriteLineDebug("{0:x8} {1}   Rotation: {2} {3} {4} {5}", reader.BaseStream.Position,
+                                prefix, rot.X, rot.Y, rot.Z, rot.W);
                         }
-                        if ((num14 & 8192) == 8192)
+
+                        if ((frameType & 8192) == 8192)
                         {
-                            float num15 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num16 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num17 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            ColoredConsole.WriteLineDebug("{0:x8} {1}   Scale: {2} {3} {4}", new object[]
-                            {
-                                this.pos,
-                                prefix,
-                                num15,
-                                num16,
-                                num17
-                            });
+                            Vector3 scale = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                            ColoredConsole.WriteLineDebug("{0:x8} {1}   Scale: {2} {3} {4}", reader.BaseStream.Position,
+                                prefix, scale.X, scale.Y, scale.Z);
                         }
-                        if ((num14 & 16384) == 16384)
+
+                        if ((frameType & 16384) == 16384)
                         {
-                            float num15 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num16 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            float num17 = BitConverter.ToSingle(this.fileData, this.pos);
-                            this.pos += 4;
-                            ColoredConsole.WriteLineDebug("{0:x8} {1}   Position: {2} {3} {4}", new object[]
-                            {
-                                this.pos,
-                                prefix,
-                                num15,
-                                num16,
-                                num17
-                            });
+                            Vector3 pos = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                            ColoredConsole.WriteLineDebug("{0:x8} {1}   Position: {2} {3} {4}", reader.BaseStream.Position,
+                                prefix, pos.X, pos.Y, pos.Z);
                         }
-                        if (num14 > 28672)
+
+                        if (frameType > 28672)
                         {
-                            throw new NotSupportedException("FrameType: " + num14);
+                            throw new NotSupportedException("FrameType: " + frameType);
                         }
                     }
                 }
+                else
+                {
+                    reader.BaseStream.Seek(-4L, SeekOrigin.Current);
+                }
             }
-            */
-            return mesh;
+
+            return obj;
         }
 
-        /*public void WriteObj(Mesh mesh)
+        public void WriteObj(XbfObject guy)
         {
-            FileStream fileStream = File.Create(this.directoryname + "\\" + mesh.Name + ".obj");
+            FileStream fileStream = File.Create(guy.Name + ".obj");
             StreamWriter streamWriter = new StreamWriter(fileStream);
-            foreach (Vector3D arg in mesh.Vectors)
+            foreach (Vector3 arg in guy.Mesh.Vectors)
             {
-                streamWriter.WriteLine(string.Format("v {0}", arg).Replace(',', '.'));
+                streamWriter.WriteLine("v {0:F6} {1:F6} {2:F6}", arg.X, arg.Y, arg.Z);
             }
             streamWriter.WriteLine();
-            foreach (Vector3D arg2 in mesh.Normals)
+            foreach (Vector3 arg2 in guy.Mesh.Normals)
             {
-                streamWriter.WriteLine(string.Format("vn {0}", arg2).Replace(',', '.'));
+                streamWriter.WriteLine("vn {0:F3} {1:F3} {2:F3}", arg2.X, arg2.Y, arg2.Z);
             }
             streamWriter.WriteLine();
-            foreach (Vector2D arg3 in mesh.UVs)
+            foreach (Triangle tri in guy.Mesh.Triangles)
             {
-                streamWriter.WriteLine(string.Format("vt {0}", arg3).Replace(',', '.'));
+                streamWriter.WriteLine("vt {0:F3} {1:F3}", tri.UV_A.X, 1 - tri.UV_A.Y);
+                streamWriter.WriteLine("vt {0:F3} {1:F3}", tri.UV_B.X, 1 - tri.UV_B.Y);
+                streamWriter.WriteLine("vt {0:F3} {1:F3}", tri.UV_C.X, 1 - tri.UV_C.Y);
             }
             string text = string.Empty;
             streamWriter.WriteLine();
-            streamWriter.WriteLine("g " + mesh.Name);
-            int count = mesh.Vectors.Count;
-            int count2 = mesh.UVs.Count;
-            foreach (Triangle triangle in mesh.Triangles)
+            streamWriter.WriteLine("g " + guy.Name);
+            for (int i = 0; i < guy.Mesh.Triangles.Count; i++)
             {
-                if (triangle.TextureId < this.textures.Count && this.textures[triangle.TextureId] != text)
+                var triangle = guy.Mesh.Triangles[i];
+                
+                if (triangle.TextureId < model.Materials.Count && model.Materials[triangle.TextureId] != text)
                 {
-                    text = this.textures[triangle.TextureId];
+                    text = model.Materials[triangle.TextureId];
                     streamWriter.WriteLine();
                     streamWriter.WriteLine("usemtl " + text);
                 }
-                if (triangle.TextureId < this.textures.Count)
+                if (triangle.TextureId < model.Materials.Count)
                 {
                     streamWriter.WriteLine("f {0}/{3}/{0} {1}/{4}/{1} {2}/{5}/{2}", new object[]
                     {
-                        triangle.A - count,
-                        triangle.B - count,
-                        triangle.C - count,
-                        triangle.UV1 - count2,
-                        triangle.UV2 - count2,
-                        triangle.UV3 - count2
+                        triangle.A + 1,
+                        triangle.B + 1,
+                        triangle.C + 1,
+                        (i * 3) + 1,
+                        (i * 3) + 2,
+                        (i * 3) + 3,
                     });
                 }
                 else
                 {
-                    streamWriter.WriteLine("f {0}//{0} {1}//{1} {2}//{2}", triangle.A - count, triangle.B - count, triangle.C - count);
+                    streamWriter.WriteLine("f {0}//{0} {1}//{1} {2}//{2}", triangle.A + 1, triangle.B + 1, triangle.C + 1);
                 }
             }
             streamWriter.Close();
             fileStream.Close();
-            foreach (Mesh mesh2 in mesh.SubMeshes)
+            foreach (XbfObject guy2 in guy.Children)
             {
-                this.WriteObj(mesh2);
+                WriteObj(guy2);
             }
-        }*/
+        }
+
+        #if !NETFRAMEWORK
+        // TODO: textures, UVs
+        public NodeBuilder BuildGltf(SceneBuilder scene, NodeBuilder parentNode, XbfObject obj)
+        {
+            var m = new MeshBuilder<VertexPosition>(obj.Name);
+                
+            var pList = model.Materials.Select(matName =>
+            {
+                var mat = new MaterialBuilder(matName).WithDoubleSide(true);
+                var ch = mat.GetChannel(KnownChannel.BaseColor);
+                
+                return m.UsePrimitive(mat);
+            }).ToList();
+                
+            var msh = obj.Mesh;
+                
+            foreach (Triangle tri in msh.Triangles)
+            {
+                var prim = pList[tri.TextureId];
+                var tv = new[] {tri.A, tri.B, tri.C}.Select(p =>
+                {
+                    var v = msh.Vectors[p];
+                    var n = msh.Normals[p];
+ 
+                    // TODO: normals are broken on certain models, glTF angry
+                    return new VertexPosition(v);
+                }).ToArray();
+                
+                prim.AddTriangle(tv[0], tv[1], tv[2]);
+            }
+            
+            // TODO: this is insane
+            var mtx = (Matrix4x4)obj.Matrix;
+            mtx.M14 = 0;
+            mtx.M24 = 0;
+            mtx.M34 = 0;
+            mtx.M44 = 1;
+            
+            //var ins = scene.AddRigidMesh(m, mtx);
+            NodeBuilder node = parentNode != null ? parentNode.CreateNode(obj.Name) : new NodeBuilder(obj.Name);
+            node.LocalMatrix = mtx;
+
+            foreach (var child in obj.Children)
+            {
+                BuildGltf(scene, node, child);
+            }
+
+            return node;
+        }
+        
+        // TODO: UV maps?
+        public void WriteGltf()
+        {
+            var scene = new SceneBuilder(model.Name);
+
+            foreach (XbfObject obj in model.Objects)
+            {
+                scene.AddNode(BuildGltf(scene, null, obj));
+            }
+            
+            var mr = scene.ToGltf2();
+            mr.SaveGLB($"{model.Name}.glb");
+            mr.SaveGLTF($"{model.Name}.gltf");
+        }
+        #endif
     }
 }

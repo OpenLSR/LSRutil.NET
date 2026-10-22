@@ -10,7 +10,7 @@ namespace WriteTrack
             var writer = new TrkWriter();
             var track = new Track() {
                 size = Track.TrackSize.Multiplayer,
-                theme = Track.TrackTheme.Ice,
+                theme = Track.TrackTheme.Arctic,
                 time = Track.TrackTime.Night
             };
 

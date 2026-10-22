@@ -153,13 +153,14 @@ namespace LSRutil
 
         public void Unpack(string directory, bool preserveStructure)
         {
-            var dir = Directory.CreateDirectory(directory + (preserveStructure ? ("\\" + Path.GetDirectoryName(filepath) + "\\") : string.Empty));
-            var location = dir.FullName + Path.GetFileName(filepath);
+            var newPath = filepath.Replace('\\', Path.DirectorySeparatorChar); // necessary on non-windows platforms
+            var dir = Directory.CreateDirectory(directory + (preserveStructure ? (Path.DirectorySeparatorChar + Path.GetDirectoryName(newPath) + Path.DirectorySeparatorChar) : string.Empty));
+            var location = dir.FullName + Path.GetFileName(newPath);
             using (var fileStream = new FileStream(location, FileMode.Create))
             using (var fileWriter = new BinaryWriter(fileStream))
             {
                 var fileBytes = data;
-                //Console.WriteLine("[RF] Extracting {0}...", filepath);
+                Console.WriteLine("[RF] Extracting {0}...", filepath);
                 switch (compressionType)
                 {
                 case ResourceCompressionType.Store:

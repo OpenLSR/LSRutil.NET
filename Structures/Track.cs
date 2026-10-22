@@ -17,29 +17,14 @@ namespace LSRutil
         public TrackSize size;
 
         /// <summary>
-        /// Extension of <see cref="size"/>, used by XTK.
-        /// </summary>
-        public uint ext_sizeX;
-
-        /// <summary>
-        /// Extension of <see cref="size"/>, used by XTK.
-        /// </summary>
-        public uint ext_sizeY;
-
-        /// <summary>
         /// The track time of day.
         /// </summary>
         public TrackTime time;
-
-        /// <summary>
-        /// Extension of <see cref="time"/>, values between 0-23, used by XTK.
-        /// </summary>
-        public uint ext_time;
-
+        
         /// <summary>
         /// All of the TrackElements in the track.
         /// </summary>
-        private List<TrackElement> elements;
+        protected List<TrackElement> elements;
 
         /// <summary>
         /// The track's playablity outside of the editor.
@@ -49,13 +34,13 @@ namespace LSRutil
         /// <summary>
         /// Instanciates a new track.
         /// </summary>
-        /// <param name="theme">The theme of the track</param>
         /// <param name="size">The size of the track</param>
+        /// <param name="theme">The theme of the track</param>
         /// <param name="time">The track time of day</param>
-        public Track(TrackTheme theme = TrackTheme.City, TrackSize size = TrackSize.Singleplayer, TrackTime time = TrackTime.Day)
+        public Track(TrackSize size = TrackSize.Singleplayer, TrackTheme theme = TrackTheme.City, TrackTime time = TrackTime.Day)
         {
-            this.theme = theme;
             this.size = size;
+            this.theme = theme;
             this.time = time;
             elements = new List<TrackElement> { };
         }
@@ -107,9 +92,9 @@ namespace LSRutil
         {
             Jungle = 0,
             Arctic = 1,
-            Ice = 1, // alternate name
             Desert = 2,
             City = 3,
+            Undefined = 0xFF
         }
 
         /// <summary>
@@ -153,11 +138,6 @@ namespace LSRutil
         }
 
         /// <summary>
-        /// Used by XTK to store element metadata.
-        /// </summary>
-        public Dictionary<int, int> ext_metadata;
-
-        /// <summary>
         /// The asset ID, as an unsigned int straight from the file.
         /// </summary>
         public uint id { get => _id; set => SetId(value); }
@@ -166,8 +146,8 @@ namespace LSRutil
         /// <summary>
         /// The theme of the track element.
         /// </summary>
-        public Track.TrackTheme? theme { get => _theme; set => SetTheme(value); }
-        private Track.TrackTheme? _theme;
+        public Track.TrackTheme theme { get => _theme; set => SetTheme(value); }
+        private Track.TrackTheme _theme = Track.TrackTheme.Undefined;
 
         /// <summary>
         /// The rotation of the track element.
@@ -199,8 +179,8 @@ namespace LSRutil
         /// <summary>
         /// The element ID index, from 0 to 72.
         /// </summary>
-        public uint? index { get => _index; set => SetIndex(value); }
-        private uint? _index;
+        public uint index { get => _index; set => SetIndex(value); }
+        private uint _index;
 
         /// <summary>
         /// Instanciates a new track element with given arguments.
@@ -224,7 +204,8 @@ namespace LSRutil
         /// <param name="pos">The position of the track element</param>
         public TrackElement(uint index, Track.TrackTheme theme, int rotation, GridPosition pos)
         {
-            this.id = id;
+            this.index = index;
+            this.theme = theme;
             this.rotation = (TrackRotation)rotation;
             this.pos = pos;
         }
@@ -240,7 +221,7 @@ namespace LSRutil
         public void SetId(uint id)
         {
             _id = id;
-            if(theme != null)
+            if(theme != Track.TrackTheme.Undefined)
             {
                 for (uint i = 0; i < 73; i++)
                 {
@@ -265,26 +246,24 @@ namespace LSRutil
                         }
                     }
                 }
-                _index = null;
+                _index = 0xFF;
                 return;
             }
         }
 
-        public void SetIndex(uint? index)
+        public void SetIndex(uint index)
         {
-            if(theme != null)
+            if(theme == Track.TrackTheme.Undefined)
             {
-                _id = elementTable[(int)theme][(int)index];
+                return;
             }
-            else
-            {
-                throw new InvalidOperationException("Cannot set index of a theme-less element");
-            }
+            _id = elementTable[(int)theme][(int)index];
+            //throw new InvalidOperationException("Cannot set index of a theme-less element");
         }
 
-        public void SetTheme(Track.TrackTheme? theme)
+        public void SetTheme(Track.TrackTheme theme)
         {
-            if(_index != null) _id = elementTable[(int)theme][(int)_index];
+            if(_index != 0xFF && theme != Track.TrackTheme.Undefined) _id = elementTable[(int)theme][(int)_index];
             _theme = theme;
         }
 
@@ -407,38 +386,6 @@ namespace LSRutil
         {
             return (this.id, this.index, this.pos, this.rotation, this.theme, this.mystery) ==
                 (element.id, element.index, element.pos, element.rotation, element.theme, element.mystery);
-        }
-
-        /// <summary>
-        /// A map of all of the XTK metadata fields and their IDs
-        /// </summary>
-        public enum XtkMetadataFields
-        {
-            /// <summary>
-            /// Used for different textures within themes.
-            /// </summary>
-            Variant = 0x00,
-
-            /// <summary>
-            /// Height block toggle, creates a floating track piece if set to 1.
-            /// </summary>
-            /// <remarks>
-            /// 0: height blocks, 1: no height blocks
-            /// </remarks>
-            NoHeightBlocks = 0x01,
-
-            /// <summary>
-            /// Effect multiplier (speed boost, fan push, belt push, cannon toss, etc).
-            /// </summary>
-            EffectMultiplier = 0x02,
-
-            /// <summary>
-            /// Track physicality. Controls how an element reacts.
-            /// </summary>
-            /// <remarks>
-            /// 0: standard, 1: no collisions, 2: no rendering
-            /// </remarks>
-            TrackPhysicality = 0x7F
         }
     }
 }

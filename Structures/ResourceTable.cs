@@ -8,6 +8,7 @@ namespace LSRutil
     {
         public Dictionary<uint,string> contents;
         public List<string> directories;
+        // TODO: split directories into each type, remove AddDirectory
 
         public ResourceTable()
         {

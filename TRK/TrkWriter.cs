@@ -92,7 +92,7 @@ namespace LSRutil.TRK
             switch (theme)
             {
                 case Track.TrackTheme.Jungle: return 0x3B;
-                case Track.TrackTheme.Ice:    return 0x3F;
+                case Track.TrackTheme.Arctic: return 0x3F;
                 case Track.TrackTheme.Desert: return 0x47;
                 case Track.TrackTheme.City:   return 0x43;
                 default:                return 0x43;
